@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.JsonPath", "JsonCraft.JsonPath\JsonCraft.JsonPath.csproj", "{6A6DF722-58F5-4E54-B0DB-E86A71747D7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Benchmark", "JsonCraft.Benchmark\JsonCraft.Benchmark.csproj", "{07CBE211-7F80-4DE5-845C-6DC875231A8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Tests", "JsonCraft.Tests\JsonCraft.Tests.csproj", "{05D53A5B-025E-4F85-9913-50B52E95E6F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Experimental", "Experimental", "{5CE1E458-70BE-47A3-A6D0-B91E49BC1867}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Experimental.JsonPath.SupportJsonNode", "JsonCraft.Experimental.JsonPath.SupportJsonNode\JsonCraft.Experimental.JsonPath.SupportJsonNode.csproj", "{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A6DF722-58F5-4E54-B0DB-E86A71747D7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A6DF722-58F5-4E54-B0DB-E86A71747D7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A6DF722-58F5-4E54-B0DB-E86A71747D7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A6DF722-58F5-4E54-B0DB-E86A71747D7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07CBE211-7F80-4DE5-845C-6DC875231A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07CBE211-7F80-4DE5-845C-6DC875231A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07CBE211-7F80-4DE5-845C-6DC875231A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07CBE211-7F80-4DE5-845C-6DC875231A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05D53A5B-025E-4F85-9913-50B52E95E6F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05D53A5B-025E-4F85-9913-50B52E95E6F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05D53A5B-025E-4F85-9913-50B52E95E6F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05D53A5B-025E-4F85-9913-50B52E95E6F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA} = {5CE1E458-70BE-47A3-A6D0-B91E49BC1867}
+	EndGlobalSection
+EndGlobal
