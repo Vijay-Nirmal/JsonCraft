@@ -18,22 +18,7 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            /*foreach (var c in current)
-            {
-                foreach (var result in ExecuteFilterSingle(c))
-                {
-                    yield return result;
-                }
-            }*/
             return current.SelectMany(x => ExecuteFilterSingle(x));
-            /*if (current.TryGetNonEnumeratedCount(out var count) && count == 1)
-            {
-                return ExecuteFilterSingle(current.First());
-            }
-            else
-            {
-                return current.SelectMany(x => ExecuteFilterSingle(x));
-            }*/
         }
 
         private IEnumerable<JsonElement> ExecuteFilterSingle(JsonElement current, string? propertyName = null)

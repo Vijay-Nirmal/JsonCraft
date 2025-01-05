@@ -42,7 +42,34 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            return current.SelectMany(x => ExecuteFilter(root, x, settings));
+            foreach (var item in current)
+            {
+                if (Expression.IsMatch(root, item, settings))
+                {
+                    yield return item;
+                }
+
+                if (item.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var d in item.EnumerateObject())
+                    {
+                        if (Expression.IsMatch(root, d.Value, settings))
+                        {
+                            yield return d.Value;
+                        }
+                    }
+                }
+                else if (item.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var d in item.EnumerateArray())
+                    {
+                        if (Expression.IsMatch(root, d, settings))
+                        {
+                            yield return d;
+                        }
+                    }
+                }
+            }
         }
     }
 }

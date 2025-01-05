@@ -37,7 +37,30 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            return current.SelectMany(x => ExecuteFilter(root, x, settings));
+            foreach (var item in current)
+            {
+                // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory.
+                if (item.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var v in item.EnumerateArray())
+                    {
+                        if (Expression.IsMatch(root, v, settings))
+                        {
+                            yield return v;
+                        }
+                    }
+                }
+                else if (item.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var v in item.EnumerateObject())
+                    {
+                        if (Expression.IsMatch(root, v.Value, settings))
+                        {
+                            yield return v.Value;
+                        }
+                    }
+                }
+            }
         }
     }
 }

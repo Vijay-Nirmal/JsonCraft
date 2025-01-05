@@ -46,7 +46,38 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            return current.SelectMany(x => ExecuteFilter(root, x, settings));
+            foreach (var item in current)
+            {
+                // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory. So we have duplicated code here.
+                if (item.ValueKind == JsonValueKind.Object)
+                {
+                    if (Name != null)
+                    {
+                        if (item.TryGetProperty(Name, out var v))
+                        {
+                            yield return v;
+                        }
+                        else if (settings?.ErrorWhenNoMatch ?? false)
+                        {
+                            throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", Name));
+                        }
+                    }
+                    else
+                    {
+                        foreach (var p in item.EnumerateObject())
+                        {
+                            yield return p.Value;
+                        }
+                    }
+                }
+                else
+                {
+                    if (settings?.ErrorWhenNoMatch ?? false)
+                    {
+                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name ?? "*", item.ValueKind));
+                    }
+                }
+            }
         }
     }
 }
