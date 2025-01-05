@@ -36,7 +36,8 @@ public class BenchmarkJsonPath
         //"$.store.book[?(@.price in [8.95, 12.99])]",       // value in array match
         //"$.store.book[?(@.category in ['fiction','reference'])]", // multiple value match
         "$..*",                                             // recursive descent all nodes
-        "$.store.book[?(@.author && @.title)]"            // existence check
+        "$..['bicycle','price']",                            // recursive descent all nodes
+        "$.store.book[?(@.author && @.title)]",            // existence check
         //"$.store.book[?(!@.isbn)]",                        // non-existence check
         //"$.store.*",                                       // wildcard child
         //"$.store.book[?(length(@.author) > 5)]"            // function usage

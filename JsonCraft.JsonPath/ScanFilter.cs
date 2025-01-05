@@ -24,7 +24,7 @@ namespace JsonCraft.JsonPath
         // TODO: In .Net 10, Replace the second parameter with isObject bool and use GetRawUtf8PropertyName to compare the names
         private IEnumerable<JsonElement> ExecuteFilterSingle(JsonElement current, JsonProperty propertyName = default)
         {
-            if (Name is null || propertyName.NameEquals(Name))
+            if (Name is null || (propertyName.Value.ValueKind != JsonValueKind.Undefined && propertyName.NameEquals(Name)))
             {
                 yield return current;
             }
