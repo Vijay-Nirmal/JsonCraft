@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace JsonCraft.JsonPath
 {
-    internal class JPath
+    internal class JsonPath
     {
         private static readonly char[] FloatCharacters = new[] {'.', 'E', 'e'};
         private static readonly JsonElement NullJsonElement = JsonSerializer.SerializeToElement(null as string);
@@ -18,7 +18,7 @@ namespace JsonCraft.JsonPath
 
         private int _currentIndex;
 
-        public JPath(string expression)
+        public JsonPath(string expression)
         {
             ArgumentNullException.ThrowIfNull(expression);
             _expression = expression;

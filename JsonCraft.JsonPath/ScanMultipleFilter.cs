@@ -40,6 +40,15 @@ namespace JsonCraft.JsonPath
             {
                 foreach (var property in current.EnumerateObject())
                 {
+                    // TODO: Use NameEquals instead of Contains. In .Net 10, Use GetRawUtf8PropertyName and use AlternateLookup with HashSet (if it doesn't increase the memory usage)
+                    //foreach (var item in _names)
+                    //{
+                    //    if(property.NameEquals(item))
+                    //    {
+                    //        yield return property.Value;
+                    //    }
+                    //}
+
                     if (_names.Contains(property.Name))
                     {
                         yield return property.Value;

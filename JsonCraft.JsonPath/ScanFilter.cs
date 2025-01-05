@@ -21,9 +21,10 @@ namespace JsonCraft.JsonPath
             return current.SelectMany(x => ExecuteFilterSingle(x));
         }
 
-        private IEnumerable<JsonElement> ExecuteFilterSingle(JsonElement current, string? propertyName = null)
+        // TODO: In .Net 10, Replace the second parameter with isObject bool and use GetRawUtf8PropertyName to compare the names
+        private IEnumerable<JsonElement> ExecuteFilterSingle(JsonElement current, JsonProperty propertyName = default)
         {
-            if (Name is null || Name == propertyName)
+            if (Name is null || propertyName.NameEquals(Name))
             {
                 yield return current;
             }
@@ -42,7 +43,7 @@ namespace JsonCraft.JsonPath
             {
                 foreach (var property in current.EnumerateObject())
                 {
-                    foreach (var result in ExecuteFilterSingle(property.Value, property.Name))
+                    foreach (var result in ExecuteFilterSingle(property.Value, property))
                     {
                         yield return result;
                     }

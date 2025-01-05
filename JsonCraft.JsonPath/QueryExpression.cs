@@ -87,12 +87,12 @@ namespace JsonCraft.JsonPath
         {
             if (Operator == QueryOperator.Exists)
             {
-                return Left is List<PathFilter> left ? JPath.Evaluate(left, root, t, settings).Any() : true;
+                return Left is List<PathFilter> left ? JsonPath.Evaluate(left, root, t, settings).Any() : true;
             }
 
             if (Left is List<PathFilter> leftPath)
             {
-                foreach (var leftResult in JPath.Evaluate(leftPath, root, t, settings))
+                foreach (var leftResult in JsonPath.Evaluate(leftPath, root, t, settings))
                 {
                     return EvaluateMatch(root, t, settings, leftResult);
                 }
@@ -108,7 +108,7 @@ namespace JsonCraft.JsonPath
             {
                 if (Right is List<PathFilter> right)
                 {
-                    foreach (var rightResult in JPath.Evaluate(right, root, t, settings))
+                    foreach (var rightResult in JsonPath.Evaluate(right, root, t, settings))
                     {
                         if (MatchTokens(leftResult, rightResult, settings))
                         {

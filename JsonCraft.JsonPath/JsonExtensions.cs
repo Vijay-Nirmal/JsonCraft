@@ -6,7 +6,7 @@ namespace JsonCraft.JsonPath
     {
         public static JsonElement? SelectToken(this JsonElement jsonElement, string path, JsonSelectSettings? settings = null)
         {
-            JPath p = new JPath(path);
+            JsonPath p = new JsonPath(path);
 
             JsonElement? token = default;
             foreach (var t in p.Evaluate(jsonElement, jsonElement, settings))
@@ -24,7 +24,7 @@ namespace JsonCraft.JsonPath
 
         public static IEnumerable<JsonElement> SelectTokens(this JsonElement jsonElement, string path, JsonSelectSettings? settings = null)
         {
-            JPath p = new JPath(path);
+            JsonPath p = new JsonPath(path);
             return p.Evaluate(jsonElement, jsonElement, settings);
         }
 
