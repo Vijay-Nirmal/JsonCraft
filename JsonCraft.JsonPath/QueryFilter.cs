@@ -11,31 +11,33 @@ namespace JsonCraft.JsonPath
             Expression = expression;
         }
 
-        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
         {
-            foreach (var t in current)
+            if (current.ValueKind == JsonValueKind.Array)
             {
-                if (t.ValueKind == JsonValueKind.Array)
+                foreach (var v in current.EnumerateArray())
                 {
-                    foreach (var v in t.EnumerateArray())
+                    if (Expression.IsMatch(root, v, settings))
                     {
-                        if (Expression.IsMatch(root, v, settings))
-                        {
-                            yield return v;
-                        }
-                    }
-                }
-                else if (t.ValueKind == JsonValueKind.Object)
-                {
-                    foreach (var v in t.EnumerateObject())
-                    {
-                        if (Expression.IsMatch(root, v.Value, settings))
-                        {
-                            yield return v.Value;
-                        }
+                        yield return v;
                     }
                 }
             }
+            else if (current.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var v in current.EnumerateObject())
+                {
+                    if (Expression.IsMatch(root, v.Value, settings))
+                    {
+                        yield return v.Value;
+                    }
+                }
+            }
+        }
+
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

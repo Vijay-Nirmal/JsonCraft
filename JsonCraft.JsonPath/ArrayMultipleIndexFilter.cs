@@ -11,20 +11,22 @@ namespace JsonCraft.JsonPath
             Indexes = indexes;
         }
 
-        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
         {
-            foreach (var t in current)
+            foreach (int i in Indexes)
             {
-                foreach (int i in Indexes)
-                {
-                    var v = GetTokenIndex(t, settings, i);
+                var v = GetTokenIndex(current, settings, i);
 
-                    if (v != null)
-                    {
-                        yield return v.Value;
-                    }
+                if (v != null)
+                {
+                    yield return v.Value;
                 }
             }
+        }
+
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

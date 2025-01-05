@@ -7,37 +7,39 @@ namespace JsonCraft.JsonPath
     {
         public int? Index { get; set; }
 
-        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
         {
-            foreach (var t in current)
+            if (Index != null)
             {
-                if (Index != null)
-                {
-                    var v = GetTokenIndex(t, settings, Index.GetValueOrDefault());
+                var v = GetTokenIndex(current, settings, Index.GetValueOrDefault());
 
-                    if (v != null)
+                if (v != null)
+                {
+                    yield return v.Value;
+                }
+            }
+            else
+            {
+                if (current.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var v in current.EnumerateArray())
                     {
-                        yield return v.Value;
+                        yield return v;
                     }
                 }
                 else
                 {
-                    if (t.ValueKind == JsonValueKind.Array)
+                    if (settings?.ErrorWhenNoMatch ?? false)
                     {
-                        foreach (var v in t.EnumerateArray())
-                        {
-                            yield return v;
-                        }
-                    }
-                    else
-                    {
-                        if (settings?.ErrorWhenNoMatch ?? false)
-                        {
-                            throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Index * not valid on {0}.", t.GetType().Name));
-                        }
+                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Index * not valid on {0}.", current.ValueKind));
                     }
                 }
             }
+        }
+
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

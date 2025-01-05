@@ -859,13 +859,21 @@ namespace JsonCraft.JsonPath
 
         internal static IEnumerable<JsonElement> Evaluate(List<PathFilter> filters, JsonElement root, JsonElement t, JsonSelectSettings? settings)
         {
-            IEnumerable<JsonElement> current = [t];
-            foreach (PathFilter filter in filters)
+            if (filters.Count >= 1)
             {
-                current = filter.ExecuteFilter(root, current, settings);
-            }
+                var firstFilter = filters[0];
+                var current = firstFilter.ExecuteFilter(root, t, settings);
 
-            return current;
+                for (int i = 1; i < filters.Count; i++)
+                {
+                    current = filters[i].ExecuteFilter(root, current, settings);
+                }
+                return current;
+            }
+            else
+            {
+                return [t];
+            }
         }
     }
 }

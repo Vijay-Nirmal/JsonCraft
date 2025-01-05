@@ -11,6 +11,11 @@ namespace JsonCraft.JsonPath
         {
         }
 
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
+        {
+            return [root];
+        }
+
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
             return [root];

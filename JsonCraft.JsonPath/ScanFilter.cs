@@ -11,6 +11,11 @@ namespace JsonCraft.JsonPath
             Name = name;
         }
 
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
+        {
+            return ExecuteFilterSingle(current);
+        }
+
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
             /*foreach (var c in current)

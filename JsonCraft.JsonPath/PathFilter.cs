@@ -5,6 +5,7 @@ namespace JsonCraft.JsonPath
 {
     internal abstract class PathFilter
     {
+        public abstract IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings);
         public abstract IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings);
 
         protected static JsonElement? GetTokenIndex(JsonElement t, JsonSelectSettings? settings, int index)

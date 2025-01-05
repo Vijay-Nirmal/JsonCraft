@@ -12,33 +12,35 @@ namespace JsonCraft.JsonPath
             Names = names;
         }
 
-        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
         {
-            foreach (var t in current)
+            if (current.ValueKind == JsonValueKind.Object)
             {
-                if (t.ValueKind == JsonValueKind.Object)
+                foreach (string name in Names)
                 {
-                    foreach (string name in Names)
+                    if (current.TryGetProperty(name, out var v))
                     {
-                        if (t.TryGetProperty(name, out var v))
-                        {
-                            yield return v;
-                        }
-
-                        if (settings?.ErrorWhenNoMatch ?? false)
-                        {
-                            throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", name));
-                        }
+                        yield return v;
                     }
-                }
-                else
-                {
+
                     if (settings?.ErrorWhenNoMatch ?? false)
                     {
-                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Properties {0} not valid on {1}.", string.Join(", ", Names.Select(n => "'" + n + "'")), t.GetType().Name));
+                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", name));
                     }
                 }
             }
+            else
+            {
+                if (settings?.ErrorWhenNoMatch ?? false)
+                {
+                    throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Properties {0} not valid on {1}.", string.Join(", ", Names.Select(n => "'" + n + "'")), current.ValueKind));
+                }
+            }
+        }
+
+        public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }
