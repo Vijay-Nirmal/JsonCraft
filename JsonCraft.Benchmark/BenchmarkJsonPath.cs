@@ -1,4 +1,4 @@
-﻿#define BENCHMARK_ALL
+﻿// #define BENCHMARK_ALL
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -90,10 +90,17 @@ public class BenchmarkJsonPath
         result.Consume(_consumer);
     }
 
-    [Benchmark(Description = "JsonCraft.Experimental.JsonPath.SupportJsonNode")]
-    public void Get_JsonCraft_JsonNode()
+    //[Benchmark(Description = "JsonCraft.Experimental.JsonPath.SupportJsonNode")]
+    //public void Get_JsonCraft_JsonNode()
+    //{
+    //    var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectTokens(_jsonDocument.RootElement, JsonPath);
+    //    result.Consume(_consumer);
+    //}
+
+    [Benchmark(Description = "BlushingPenguin.JsonPath")]
+    public void Get_BenchmarkBlushingPenguinJsonPath()
     {
-        var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectTokens(_jsonDocument.RootElement, JsonPath);
+        var result = BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(_jsonDocument, JsonPath);
         result.Consume(_consumer);
     }
 

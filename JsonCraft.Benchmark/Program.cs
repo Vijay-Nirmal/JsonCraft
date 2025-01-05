@@ -7,14 +7,14 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Text.Json;
 
-//var config = ManualConfig.Create(DefaultConfig.Instance)
-//                        .WithOptions(ConfigOptions.DisableOptimizationsValidator)
-//                        .WithArtifactsPath("../BenchmarkDotNet.Artifacts")
-//                        .HideColumns("StdDev", "RatioSD")
-//                        .WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(100)
-//                                                                .WithRatioStyle(RatioStyle.Trend));
+var config = ManualConfig.Create(DefaultConfig.Instance)
+                        .WithOptions(ConfigOptions.DisableOptimizationsValidator)
+                        .WithArtifactsPath("../BenchmarkDotNet.Artifacts")
+                        .HideColumns("StdDev", "RatioSD")
+                        .WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(100)
+                                                                .WithRatioStyle(RatioStyle.Trend));
 
-//var report = BenchmarkRunner.Run<BenchmarkJsonPath>(config);
+var report = BenchmarkRunner.Run<BenchmarkJsonPath>(config);
 
 
 var jsonString = """
@@ -44,17 +44,27 @@ var jsonString = """
 
 var jsonDocument = JsonDocument.Parse(jsonString);
 
-// var newtonsoftJson = JToken.Parse(jsonString);
+var newtonsoftJson = JToken.Parse(jsonString);
 
-var start = Stopwatch.GetTimestamp();
-for (int i = 0; i < 10_000_000; i++)
-{
-    int count = 0;
-    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*"))
-    {
-        count++;
-    }
-}
-Console.WriteLine(Stopwatch.GetElapsedTime(start));
-/*Console.WriteLine("===================================================");
-Console.WriteLine(string.Join("\n", newtonsoftJson.SelectTokens("$..*").Select(x => x.ToString(Newtonsoft.Json.Formatting.None))));*/
+//var start = Stopwatch.GetTimestamp();
+//for (int i = 0; i < 10_000_000; i++)
+//{
+//    int count = 0;
+//    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*"))
+//    {
+//        count++;
+//    }
+//    //foreach (var item in newtonsoftJson.SelectTokens("$..*"))
+//    //{
+//    //    count++;
+//    //}
+//    //foreach (var item in BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*"))
+//    //{
+//    //    count++;
+//    //}
+//}
+//Console.WriteLine(Stopwatch.GetElapsedTime(start));
+//Console.WriteLine("===================================================");
+//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*").Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine("===================================================");
+//Console.WriteLine(string.Join("\n", BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*").Select(x => JsonSerializer.Serialize(x))));
