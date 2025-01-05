@@ -29,23 +29,30 @@ namespace JsonCraft.JsonPath
                 yield return current;
             }
 
+            // Using while loop is faster than foreach loop here
             if (current.ValueKind == JsonValueKind.Array)
             {
-                foreach (var item in current.EnumerateArray())
+                var enumerator = current.EnumerateArray();
+                while (enumerator.MoveNext())
                 {
-                    foreach (var result in ExecuteFilterSingle(item))
+                    var item = enumerator.Current;
+                    var resultEnumerator = ExecuteFilterSingle(item).GetEnumerator();
+                    while (resultEnumerator.MoveNext())
                     {
-                        yield return result;
+                        yield return resultEnumerator.Current;
                     }
                 }
             }
             else if (current.ValueKind == JsonValueKind.Object)
             {
-                foreach (var property in current.EnumerateObject())
+                var enumerator = current.EnumerateObject();
+                while (enumerator.MoveNext())
                 {
-                    foreach (var result in ExecuteFilterSingle(property.Value, property))
+                    var property = enumerator.Current;
+                    var resultEnumerator = ExecuteFilterSingle(property.Value, property).GetEnumerator();
+                    while (resultEnumerator.MoveNext())
                     {
-                        yield return result;
+                        yield return resultEnumerator.Current;
                     }
                 }
             }
