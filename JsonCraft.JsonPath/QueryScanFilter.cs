@@ -22,9 +22,9 @@ namespace JsonCraft.JsonPath
             {
                 foreach (var d in current.EnumerateObject())
                 {
-                    if (Expression.IsMatch(root, d.Value, settings))
+                    foreach (var item in ExecuteFilter(root, d.Value, settings))
                     {
-                        yield return d.Value;
+                        yield return item;
                     }
                 }
             }
@@ -32,9 +32,9 @@ namespace JsonCraft.JsonPath
             {
                 foreach (var d in current.EnumerateArray())
                 {
-                    if (Expression.IsMatch(root, d, settings))
+                    foreach (var item in ExecuteFilter(root, d, settings))
                     {
-                        yield return d;
+                        yield return item;
                     }
                 }
             }
@@ -53,9 +53,9 @@ namespace JsonCraft.JsonPath
                 {
                     foreach (var d in item.EnumerateObject())
                     {
-                        if (Expression.IsMatch(root, d.Value, settings))
+                        foreach (var objItem in ExecuteFilter(root, d.Value, settings))
                         {
-                            yield return d.Value;
+                            yield return objItem;
                         }
                     }
                 }
@@ -63,9 +63,9 @@ namespace JsonCraft.JsonPath
                 {
                     foreach (var d in item.EnumerateArray())
                     {
-                        if (Expression.IsMatch(root, d, settings))
+                        foreach (var arrItem in ExecuteFilter(root, d, settings))
                         {
-                            yield return d;
+                            yield return arrItem;
                         }
                     }
                 }

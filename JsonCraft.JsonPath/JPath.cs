@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
 namespace JsonCraft.JsonPath
 {
-    internal class JsonPath
+    public class JPath
     {
         private static readonly char[] FloatCharacters = new[] {'.', 'E', 'e'};
         private static readonly JsonElement NullJsonElement = JsonSerializer.SerializeToElement(null as string);
@@ -18,7 +17,7 @@ namespace JsonCraft.JsonPath
 
         private int _currentIndex;
 
-        public JsonPath(string expression)
+        public JPath(string expression)
         {
             ArgumentNullException.ThrowIfNull(expression);
             _expression = expression;
@@ -574,13 +573,13 @@ namespace JsonCraft.JsonPath
                         if (numberText.IndexOfAny(FloatCharacters) != -1)
                         {
                             bool result = double.TryParse(numberText, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d);
-                            value = result ? TrueJsonElement : FalseJsonElement;
+                            value = JsonSerializer.SerializeToElement(d);
                             return result;
                         }
                         else
                         {
                             bool result = long.TryParse(numberText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l);
-                            value = result ? TrueJsonElement : FalseJsonElement;
+                            value = JsonSerializer.SerializeToElement(l);
                             return result;
                         }
                     }

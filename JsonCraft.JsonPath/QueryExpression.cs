@@ -87,14 +87,17 @@ namespace JsonCraft.JsonPath
         {
             if (Operator == QueryOperator.Exists)
             {
-                return Left is List<PathFilter> left ? JsonPath.Evaluate(left, root, t, settings).Any() : true;
+                return Left is List<PathFilter> left ? JPath.Evaluate(left, root, t, settings).Any() : true;
             }
 
             if (Left is List<PathFilter> leftPath)
             {
-                foreach (var leftResult in JsonPath.Evaluate(leftPath, root, t, settings))
+                foreach (var leftResult in JPath.Evaluate(leftPath, root, t, settings))
                 {
-                    return EvaluateMatch(root, t, settings, leftResult);
+                    if (EvaluateMatch(root, t, settings, leftResult))
+                    {
+                        return true;
+                    }
                 }
             }
             else if (Left is JsonElement left)
@@ -108,7 +111,7 @@ namespace JsonCraft.JsonPath
             {
                 if (Right is List<PathFilter> right)
                 {
-                    foreach (var rightResult in JsonPath.Evaluate(right, root, t, settings))
+                    foreach (var rightResult in JPath.Evaluate(right, root, t, settings))
                     {
                         if (MatchTokens(leftResult, rightResult, settings))
                         {
@@ -229,7 +232,29 @@ namespace JsonCraft.JsonPath
                 return leftValue.GetBoolean().CompareTo(rightValue.GetBoolean());
             }
 
+            if(TryGetAsDouble(leftValue, out double leftNum) && TryGetAsDouble(rightValue, out double rightNum))
+            {
+                return leftNum.CompareTo(rightNum);
+            }
+
             return leftValue.GetRawText().CompareTo(rightValue.GetRawText());
+
+            bool TryGetAsDouble(JsonElement value, out double num)
+            {
+                if (value.ValueKind == JsonValueKind.Number)
+                {
+                    num = value.GetDouble();
+                    return true;
+                }
+
+                if (value.ValueKind == JsonValueKind.String && double.TryParse(JsonMarshal.GetRawUtf8Value(value)[1..^1], out num))
+                {
+                    return true;
+                }
+
+                num = default;
+                return false;
+            }
         }
 
         private static bool RegexEquals(JsonElement input, JsonElement pattern, JsonSelectSettings? settings)
@@ -295,11 +320,6 @@ namespace JsonCraft.JsonPath
                 return value.GetBoolean() == queryValue.GetBoolean();
             }
 
-            if (IsNull(value) == IsNull(value))
-            {
-                return true;
-            }
-
             // we handle floats and integers the exact same way, so they are pseudo equivalent
             if (value.ValueKind != queryValue.ValueKind)
             {
@@ -311,11 +331,20 @@ namespace JsonCraft.JsonPath
                 return JsonMarshal.GetRawUtf8Value(value).SequenceEqual(JsonMarshal.GetRawUtf8Value(queryValue));
             }
 
+            if (value.ValueKind == JsonValueKind.Null && queryValue.ValueKind == JsonValueKind.Null)
+            {
+                return true;
+            }
+
+            if (value.ValueKind == JsonValueKind.Undefined && queryValue.ValueKind == JsonValueKind.Undefined)
+            {
+                return true;
+            }
+
             return false; // For Object and Array
         }
             
         private static bool IsBoolean(JsonElement v) => v.ValueKind == JsonValueKind.True || v.ValueKind == JsonValueKind.False;
-        private static bool IsNull(JsonElement v) => v.ValueKind == JsonValueKind.Null || v.ValueKind == JsonValueKind.Undefined;
         private static bool IsJsonContainer(JsonElement v) => v.ValueKind == JsonValueKind.Array || v.ValueKind == JsonValueKind.Object;
     }
 }
