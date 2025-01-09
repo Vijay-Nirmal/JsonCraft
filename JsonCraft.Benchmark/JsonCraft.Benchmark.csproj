@@ -13,6 +13,7 @@
     <PackageReference Include="Hyperbee.Json" Version="3.0.1" />
     <PackageReference Include="JsonCons.JsonPath" Version="1.1.0" />
     <PackageReference Include="JsonPath.Net" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" Version="17.13.35606.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 

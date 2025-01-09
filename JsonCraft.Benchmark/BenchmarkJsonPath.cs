@@ -3,6 +3,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using JsonCraft.JsonPath;
+using Microsoft.VSDiagnostics;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -11,6 +12,8 @@ namespace JsonCraft.Benchmark;
 
 [MemoryDiagnoser]
 [ShortRunJob]
+//[CPUUsageDiagnoser]
+//[DotNetObjectAllocDiagnoser]
 public class BenchmarkJsonPath
 {
     private string _jsonString;

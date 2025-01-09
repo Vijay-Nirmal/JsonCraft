@@ -12,6 +12,7 @@ namespace JsonCraft.JsonPath
             Name = name;
         }
 
+        // Inspired by https://stackoverflow.com/a/30441479/7331395
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings)
         {
             if (Name is null)
@@ -91,50 +92,11 @@ namespace JsonCraft.JsonPath
                     }
                 }
             }
-
-            //return ExecuteFilterSingle(current);
         }
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            return current.SelectMany(x => ExecuteFilterSingle(x));
-        }
-
-        // TODO: In .Net 10, Replace the second parameter with isObject bool and use GetRawUtf8PropertyName to compare the names
-        private IEnumerable<JsonElement> ExecuteFilterSingle(JsonElement current, JsonProperty propertyName = default)
-        {
-            if (Name is null || (propertyName.Value.ValueKind != JsonValueKind.Undefined && propertyName.NameEquals(Name)))
-            {
-                yield return current;
-            }
-
-            // Using while loop is faster than foreach loop here
-            if (current.ValueKind == JsonValueKind.Array)
-            {
-                var enumerator = current.EnumerateArray();
-                while (enumerator.MoveNext())
-                {
-                    var item = enumerator.Current;
-                    var resultEnumerator = ExecuteFilterSingle(item).GetEnumerator();
-                    while (resultEnumerator.MoveNext())
-                    {
-                        yield return resultEnumerator.Current;
-                    }
-                }
-            }
-            else if (current.ValueKind == JsonValueKind.Object)
-            {
-                var enumerator = current.EnumerateObject();
-                while (enumerator.MoveNext())
-                {
-                    var property = enumerator.Current;
-                    var resultEnumerator = ExecuteFilterSingle(property.Value, property).GetEnumerator();
-                    while (resultEnumerator.MoveNext())
-                    {
-                        yield return resultEnumerator.Current;
-                    }
-                }
-            }
+            return current.SelectMany(x => ExecuteFilter(root, x, null));
         }
     }
 }
