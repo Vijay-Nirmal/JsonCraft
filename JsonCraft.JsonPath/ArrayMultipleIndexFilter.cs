@@ -15,7 +15,7 @@ namespace JsonCraft.JsonPath
         {
             foreach (int i in Indexes)
             {
-                var v = GetTokenIndex(current, settings, i);
+                var v = GetTokenIndex(current, i, settings?.ErrorWhenNoMatch ?? false);
 
                 if (v != null)
                 {
@@ -31,7 +31,7 @@ namespace JsonCraft.JsonPath
                 // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory. So we have duplicated code here.
                 foreach (int i in Indexes)
                 {
-                    var v = GetTokenIndex(item, settings, i);
+                    var v = GetTokenIndex(item, i, settings?.ErrorWhenNoMatch ?? false);
 
                     if (v != null)
                     {

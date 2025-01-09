@@ -8,13 +8,13 @@ namespace JsonCraft.JsonPath
         public abstract IEnumerable<JsonElement> ExecuteFilter(JsonElement root, JsonElement current, JsonSelectSettings? settings);
         public abstract IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings);
 
-        protected static JsonElement? GetTokenIndex(JsonElement t, JsonSelectSettings? settings, int index)
+        protected static JsonElement? GetTokenIndex(JsonElement t, int index, bool errorWhenNoMatch = false)
         {
             if (t.ValueKind == JsonValueKind.Array)
             {
                 if (t.GetArrayLength() <= index)
                 {
-                    if (settings?.ErrorWhenNoMatch ?? false)
+                    if (errorWhenNoMatch)
                     {
                         throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Index {0} outside the bounds of JArray.", index));
                     }
@@ -26,7 +26,7 @@ namespace JsonCraft.JsonPath
             }
             else
             {
-                if (settings?.ErrorWhenNoMatch ?? false)
+                if (errorWhenNoMatch)
                 {
                     throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Index {0} not valid on {1}.", index, t.GetType().Name));
                 }

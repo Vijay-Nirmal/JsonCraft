@@ -96,7 +96,7 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            return current.SelectMany(x => ExecuteFilter(root, x, null));
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

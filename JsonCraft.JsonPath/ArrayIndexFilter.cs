@@ -11,21 +11,18 @@ namespace JsonCraft.JsonPath
         {
             if (Index != null)
             {
-                var v = GetTokenIndex(current, settings, Index.GetValueOrDefault());
+                var v = GetTokenIndex(current, Index.GetValueOrDefault(), settings?.ErrorWhenNoMatch ?? false);
 
                 if (v != null)
                 {
-                    yield return v.Value;
+                    return [v.Value];
                 }
             }
             else
             {
                 if (current.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var v in current.EnumerateArray())
-                    {
-                        yield return v;
-                    }
+                    return current.EnumerateArray();
                 }
                 else
                 {
@@ -35,16 +32,30 @@ namespace JsonCraft.JsonPath
                     }
                 }
             }
+
+            return Enumerable.Empty<JsonElement>();
         }
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            if (current.TryGetNonEnumeratedCount(out var count))
+            {
+                return ExecuteFilter(root, current.First(), settings);
+            }
+            else
+            {
+                return ExecuteFilterMultiple(current, settings?.ErrorWhenNoMatch ?? false);
+            }
+        }
+
+        private IEnumerable<JsonElement> ExecuteFilterMultiple(IEnumerable<JsonElement> current, bool errorWhenNoMatch)
         {
             foreach (var item in current)
             {
                 // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory. So we have duplicated code here.
                 if (Index != null)
                 {
-                    var v = GetTokenIndex(item, settings, Index.GetValueOrDefault());
+                    var v = GetTokenIndex(item, Index.GetValueOrDefault(), errorWhenNoMatch);
 
                     if (v != null)
                     {
@@ -62,7 +73,7 @@ namespace JsonCraft.JsonPath
                     }
                     else
                     {
-                        if (settings?.ErrorWhenNoMatch ?? false)
+                        if (errorWhenNoMatch)
                         {
                             throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Index * not valid on {0}.", item.ValueKind));
                         }

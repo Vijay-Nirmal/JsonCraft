@@ -20,7 +20,7 @@ namespace JsonCraft.JsonPath
                 {
                     if (current.TryGetProperty(Name, out var v))
                     {
-                        yield return v;
+                        return [v];
                     }
                     else if (settings?.ErrorWhenNoMatch ?? false)
                     {
@@ -29,10 +29,7 @@ namespace JsonCraft.JsonPath
                 }
                 else
                 {
-                    foreach (var p in current.EnumerateObject())
-                    {
-                        yield return p.Value;
-                    }
+                    return current.EnumerateObject().Select(x => x.Value);
                 }
             }
             else
@@ -42,9 +39,23 @@ namespace JsonCraft.JsonPath
                     throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name ?? "*", current.ValueKind));
                 }
             }
+
+            return Enumerable.Empty<JsonElement>();
         }
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
+        {
+            if (current.TryGetNonEnumeratedCount(out int count) && count == 1)
+            {
+                return ExecuteFilter(root, current.First(), settings);
+            }
+            else
+            {
+                return ExecuteFilterMultiple(current, settings?.ErrorWhenNoMatch ?? false);
+            }
+        }
+
+        private IEnumerable<JsonElement> ExecuteFilterMultiple(IEnumerable<JsonElement> current, bool errorWhenNoMatch)
         {
             foreach (var item in current)
             {
@@ -57,7 +68,7 @@ namespace JsonCraft.JsonPath
                         {
                             yield return v;
                         }
-                        else if (settings?.ErrorWhenNoMatch ?? false)
+                        else if (errorWhenNoMatch)
                         {
                             throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", Name));
                         }
@@ -72,7 +83,7 @@ namespace JsonCraft.JsonPath
                 }
                 else
                 {
-                    if (settings?.ErrorWhenNoMatch ?? false)
+                    if (errorWhenNoMatch)
                     {
                         throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name ?? "*", item.ValueKind));
                     }
