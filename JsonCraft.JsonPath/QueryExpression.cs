@@ -264,7 +264,6 @@ namespace JsonCraft.JsonPath
                 return false;
             }
 
-            // TODO: Use JsonMarshal.GetRawUtf8Value for temp string allocation
             string regexText = pattern.GetString()!;
             int patternOptionDelimiterIndex = regexText.LastIndexOf('/');
 

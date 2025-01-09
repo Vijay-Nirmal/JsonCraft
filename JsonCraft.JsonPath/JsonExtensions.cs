@@ -43,7 +43,6 @@ namespace JsonCraft.JsonPath
 
         public static JsonElement? SelectToken(this JsonDocument document, string path, bool errorWhenNoMatch = false)
         {
-            // TODO: Have a static instance of JsonSelectSettings to avoid creating a new instance every time.
             return document.RootElement.SelectToken(path, new JsonSelectSettings { ErrorWhenNoMatch = errorWhenNoMatch });
         }
 

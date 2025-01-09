@@ -5,9 +5,9 @@ namespace JsonCraft.JsonPath
 {
     internal class FieldFilter : PathFilter
     {
-        internal string? Name;
+        internal ReadOnlyMemory<char>? Name;
 
-        public FieldFilter(string? name)
+        public FieldFilter(ReadOnlyMemory<char>? name)
         {
             Name = name;
         }
@@ -16,9 +16,9 @@ namespace JsonCraft.JsonPath
         {
             if (current.ValueKind == JsonValueKind.Object)
             {
-                if (Name != null)
+                if (Name.HasValue)
                 {
-                    if (current.TryGetProperty(Name, out var v))
+                    if (current.TryGetProperty(Name.Value.Span, out var v))
                     {
                         return [v];
                     }
@@ -36,7 +36,7 @@ namespace JsonCraft.JsonPath
             {
                 if (settings?.ErrorWhenNoMatch ?? false)
                 {
-                    throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name ?? "*", current.ValueKind));
+                    throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name.HasValue ? Name.Value.Span.ToString() : "*", current.ValueKind));
                 }
             }
 
@@ -62,15 +62,15 @@ namespace JsonCraft.JsonPath
                 // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory. So we have duplicated code here.
                 if (item.ValueKind == JsonValueKind.Object)
                 {
-                    if (Name != null)
+                    if (Name.HasValue)
                     {
-                        if (item.TryGetProperty(Name, out var v))
+                        if (item.TryGetProperty(Name.Value.Span, out var v))
                         {
                             yield return v;
                         }
                         else if (errorWhenNoMatch)
                         {
-                            throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", Name));
+                            throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' does not exist on JObject.", Name.Value.Span.ToString()));
                         }
                     }
                     else
@@ -85,7 +85,7 @@ namespace JsonCraft.JsonPath
                 {
                     if (errorWhenNoMatch)
                     {
-                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name ?? "*", item.ValueKind));
+                        throw new JsonException(string.Format(CultureInfo.InvariantCulture, "Property '{0}' not valid on {1}.", Name.HasValue ? Name.Value.Span.ToString() : "*", item.ValueKind));
                     }
                 }
             }

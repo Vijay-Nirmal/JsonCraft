@@ -13,8 +13,8 @@ namespace JsonCraft.Tests.JsonPath
             {
                 Expressions = new List<QueryExpression>
                 {
-                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("FirstName") }, null),
-                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("LastName") }, null)
+                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("FirstName".AsMemory()) }, null),
+                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("LastName".AsMemory()) }, null)
                 }
             };
 
@@ -38,8 +38,8 @@ namespace JsonCraft.Tests.JsonPath
             {
                 Expressions = new List<QueryExpression>
                 {
-                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("FirstName") }, null),
-                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("LastName") }, null)
+                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("FirstName".AsMemory()) }, null),
+                    new BooleanQueryExpression(QueryOperator.Exists, new List<PathFilter> { new FieldFilter("LastName".AsMemory()) }, null)
                 }
             };
 

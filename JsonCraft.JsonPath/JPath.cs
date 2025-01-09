@@ -84,8 +84,8 @@ namespace JsonCraft.JsonPath
                     case '(':
                         if (_currentIndex > currentPartStartIndex)
                         {
-                            string? member = _expression.Substring(currentPartStartIndex, _currentIndex - currentPartStartIndex);
-                            if (member == "*")
+                            ReadOnlyMemory<char>? member = _expression.AsMemory(currentPartStartIndex, _currentIndex - currentPartStartIndex);
+                            if (member.Value.Length > 0 && member.Value.Span[0] == '*')
                             {
                                 member = null;
                             }
@@ -115,8 +115,8 @@ namespace JsonCraft.JsonPath
                     case '.':
                         if (_currentIndex > currentPartStartIndex)
                         {
-                            string? member = _expression.Substring(currentPartStartIndex, _currentIndex - currentPartStartIndex);
-                            if (member == "*")
+                            ReadOnlyMemory<char>? member = _expression.AsMemory(currentPartStartIndex, _currentIndex - currentPartStartIndex);
+                            if (member.Value.Length > 0 && member.Value.Span[0] == '*')
                             {
                                 member = null;
                             }
@@ -156,8 +156,8 @@ namespace JsonCraft.JsonPath
 
             if (_currentIndex > currentPartStartIndex)
             {
-                string? member = _expression.Substring(currentPartStartIndex, _currentIndex - currentPartStartIndex).TrimEnd();
-                if (member == "*")
+                ReadOnlyMemory<char>? member = _expression.AsMemory(currentPartStartIndex, _currentIndex - currentPartStartIndex).TrimEnd();
+                if (member.Value.Length > 0 && member.Value.Span[0] == '*')
                 {
                     member = null;
                 }
@@ -175,7 +175,7 @@ namespace JsonCraft.JsonPath
             return atPathEnd;
         }
 
-        private static PathFilter CreatePathFilter(string? member, bool scan)
+        private static PathFilter CreatePathFilter(ReadOnlyMemory<char>? member, bool scan)
         {
             PathFilter filter = (scan) ? (PathFilter)new ScanFilter(member) : new FieldFilter(member);
             return filter;
@@ -237,8 +237,8 @@ namespace JsonCraft.JsonPath
                             throw new JsonException("Array index expected.");
                         }
 
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         indexes.Add(index);
                         return new ArrayMultipleIndexFilter(indexes);
@@ -247,8 +247,8 @@ namespace JsonCraft.JsonPath
                     {
                         if (length > 0)
                         {
-                            string indexer = _expression.Substring(start, length);
-                            int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                            var indexer = _expression.AsSpan(start, length);
+                            int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                             if (colonCount == 1)
                             {
@@ -269,8 +269,8 @@ namespace JsonCraft.JsonPath
                             throw new JsonException("Array index expected.");
                         }
 
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         return new ArrayIndexFilter { Index = index };
                     }
@@ -289,8 +289,8 @@ namespace JsonCraft.JsonPath
                         indexes = new List<int>();
                     }
 
-                    string indexer = _expression.Substring(start, length);
-                    indexes.Add(Convert.ToInt32(indexer, CultureInfo.InvariantCulture));
+                    var indexer = _expression.AsSpan(start, length);
+                    indexes.Add(int.Parse(indexer, CultureInfo.InvariantCulture));
 
                     _currentIndex++;
 
@@ -318,8 +318,8 @@ namespace JsonCraft.JsonPath
 
                     if (length > 0)
                     {
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         if (colonCount == 0)
                         {
@@ -819,7 +819,7 @@ namespace JsonCraft.JsonPath
                     }
                     else
                     {
-                        return CreatePathFilter(field, scan);
+                        return CreatePathFilter(field.AsMemory(), scan);
                     }
                 }
                 else if (_expression[_currentIndex] == ',')

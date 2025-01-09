@@ -5,9 +5,9 @@ namespace JsonCraft.JsonPath
 {
     internal class ScanFilter : PathFilter
     {
-        internal string? Name;
+        internal ReadOnlyMemory<char>? Name;
 
-        public ScanFilter(string? name)
+        public ScanFilter(ReadOnlyMemory<char>? name)
         {
             Name = name;
         }
@@ -54,7 +54,7 @@ namespace JsonCraft.JsonPath
                             {
                                 var element = objectEnumerator.Current;
                                 innerElement = element.Value;
-                                if (Name is null || element.NameEquals(Name))
+                                if (Name is null || element.NameEquals(Name.Value.Span))
                                 {
                                     yield return element.Value;
                                 }
