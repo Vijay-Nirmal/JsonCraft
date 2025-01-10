@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace JsonCraft.JsonPath
 {
+    /// <summary>
+    /// Represents a JSON Path expression.
+    /// </summary>
     public class JPath
     {
         private static readonly char[] FloatCharacters = new[] {'.', 'E', 'e'};
@@ -13,10 +16,22 @@ namespace JsonCraft.JsonPath
         private static readonly JsonElement FalseJsonElement = JsonSerializer.SerializeToElement(false);
 
         private readonly string _expression;
+
+        /// <summary>
+        /// Gets the list of path filters.
+        /// </summary>
+        /// <value>
+        /// A list of <see cref="PathFilter"/> objects that represent the filters in the JSON Path expression.
+        /// </value>
         public List<PathFilter> Filters { get; }
 
         private int _currentIndex;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JPath"/> class with the specified expression.
+        /// </summary>
+        /// <param name="expression">The JSON Path expression.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the expression is null.</exception>
         public JPath(string expression)
         {
             ArgumentNullException.ThrowIfNull(expression);

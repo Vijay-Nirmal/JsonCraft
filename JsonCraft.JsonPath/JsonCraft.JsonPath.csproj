@@ -4,9 +4,24 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Package Metadata -->
+    <Version>1.0.0</Version>
+    <Authors>Vijay Nirmal Pon</Authors>
+    <Product>JsonCraft.JsonPath</Product>
+    <Description>A lightweight .NET library for querying JSON documents using JSONPath expressions with System.Text.Json. Inspired by and based on Newtonsoft.Json's JSONPath implementation.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Vijay-Nirmal/JsonCraft</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Vijay-Nirmal/JsonCraft.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>json;jsonpath;system.text.json;query;linq</PackageTags>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) Vijay Nirmal Pon</Copyright>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
     <InternalsVisibleTo Include="JsonCraft.Tests" />
   </ItemGroup>
 

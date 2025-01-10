@@ -137,7 +137,7 @@ public class BenchmarkJsonPath
     }
 #endif
 
-    private static JsonNode? AsNode(JsonElement element)
+    private static JsonNode AsNode(JsonElement element)
     {
         return element.ValueKind switch
         {

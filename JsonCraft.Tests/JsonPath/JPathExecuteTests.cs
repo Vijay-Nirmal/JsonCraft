@@ -1132,7 +1132,7 @@ namespace JsonCraft.Tests.JsonPath
             // Lambton Quay
             // Willis Street
 
-            IList<string?> firstProductNames = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Select(m => m.SelectToken("Products[1].Name") is JsonElement jsonElement ? jsonElement.GetString() : null).ToList();
+            IList<string> firstProductNames = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Select(m => m.SelectToken("Products[1].Name") is JsonElement jsonElement ? jsonElement.GetString() : null).ToList();
             // null
             // Headlight Fluid
 
