@@ -48,10 +48,10 @@ var jsonDocument = JsonDocument.Parse(jsonString);
 var newtonsoftJson = JToken.Parse(jsonString);
 
 //var start = Stopwatch.GetTimestamp();
-//for (int i = 0; i < 100_000_000; i++)
+//for (int i = 0; i < 10_000_000; i++)
 //{
 //    int count = 0;
-//    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.bicycle.color"))
+//    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.price > 10 && @.price < 20)]"))
 //    {
 //        count++;
 //    }
@@ -69,6 +69,6 @@ var newtonsoftJson = JToken.Parse(jsonString);
 //Console.WriteLine("===================================================");
 //Console.WriteLine(string.Join("\n", newtonsoftJson.SelectTokens("$.store.bicycle.color").Select(x => x.ToString())));
 //Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..['bicycle','price']").Select(x => JsonSerializer.Serialize(x))));
-//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.bicycle.color").ToList().Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.category == 'fiction')]").ToList().Select(x => JsonSerializer.Serialize(x))));
 //Console.WriteLine("===================================================");
 //Console.WriteLine(string.Join("\n", BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.author && @.title)]").Select(x => JsonSerializer.Serialize(x))));

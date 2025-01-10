@@ -559,16 +559,14 @@ namespace JsonCraft.JsonPath
             }
             else if (char.IsDigit(currentChar) || currentChar == '-')
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(currentChar);
-
+                var start = _currentIndex;
                 _currentIndex++;
                 while (_currentIndex < _expression.Length)
                 {
                     currentChar = _expression[_currentIndex];
                     if (currentChar == ' ' || currentChar == ')')
                     {
-                        string numberText = sb.ToString();
+                        var numberText = _expression.AsSpan(start, _currentIndex - start);
 
                         if (numberText.IndexOfAny(FloatCharacters) != -1)
                         {
@@ -585,7 +583,6 @@ namespace JsonCraft.JsonPath
                     }
                     else
                     {
-                        sb.Append(currentChar);
                         _currentIndex++;
                     }
                 }
