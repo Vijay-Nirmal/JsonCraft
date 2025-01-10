@@ -558,33 +558,30 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             }
             else if (char.IsDigit(currentChar) || currentChar == '-')
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(currentChar);
-
+                int start = _currentIndex;
                 _currentIndex++;
                 while (_currentIndex < _expression.Length)
                 {
                     currentChar = _expression[_currentIndex];
                     if (currentChar == ' ' || currentChar == ')')
                     {
-                        string numberText = sb.ToString();
+                        ReadOnlySpan<char> numberSpan = _expression.AsSpan(start, _currentIndex - start);
 
-                        if (numberText.IndexOfAny(FloatCharacters) != -1)
+                        if (numberSpan.IndexOfAny(FloatCharacters) != -1)
                         {
-                            bool result = double.TryParse(numberText, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d);
+                            bool result = double.TryParse(numberSpan, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d);
                             value = result ? TrueJsonValue : FalseJsonValue;
                             return result;
                         }
                         else
                         {
-                            bool result = long.TryParse(numberText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l);
+                            bool result = long.TryParse(numberSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l);
                             value = result ? TrueJsonValue : FalseJsonValue;
                             return result;
                         }
                     }
                     else
                     {
-                        sb.Append(currentChar);
                         _currentIndex++;
                     }
                 }
