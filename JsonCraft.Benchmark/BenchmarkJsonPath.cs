@@ -20,31 +20,32 @@ public class BenchmarkJsonPath
     private JsonDocument _jsonDocument;
     private System.Text.Json.Nodes.JsonNode _jsonNode;
     private JToken _newtonsoftJson;
+
     private readonly Consumer _consumer = new Consumer();
 
     [Params(
-        "$.store.book[0].title",
-        "$.store.book[*].author",
-        "$.store.book[?(@.price < 10)].title",
+        //"$.store.book[0].title",
+        //"$.store.book[*].author",
+        //"$.store.book[?(@.price < 10)].title",
         //"$.store.bicycle.color",
         //"$.store.book[*]",                                    // all books
-        "$.store..price",                                     // all prices using recursive descent
+        //"$.store..price",                                     // all prices using recursive descent
         //"$..author",                                          // all authors using recursive descent
-        "$.store.book[?(@.price > 10 && @.price < 20)]",     // filtered by price range
+        //"$.store.book[?(@.price > 10 && @.price < 20)]",     // filtered by price range
         //"$.store.book[?(@.category == 'fiction')]",          // filtered by category
         //"$.store.book[-1:]",                                 // last book
         //"$.store.book[:2]",                                  // first two books
         //"$.store.book[?(@.author =~ /.*Waugh/)]",            // regex match on author
         //"$..book[0,1]",                                     // union of array indices
-        //"$.store.book[?(@.price in [8.95, 12.99])]",       // value in array match
-        //"$.store.book[?(@.category in ['fiction','reference'])]", // multiple value match
-        "$..*",                                             // recursive descent all nodes
-        "$..['bicycle','price']",                            // recursive descent specfic node with name match 
-        "$..[?(@.price < 10)]",                            // recursive descent specfic node with conditionally match 
-        "$.store.book[?(@.author && @.title)]",            // existence check
+        //                                                    //"$.store.book[?(@.price in [8.95, 12.99])]",       // value in array match
+        //                                                    //"$.store.book[?(@.category in ['fiction','reference'])]", // multiple value match
+        //"$..*",                                             // recursive descent all nodes
+        //"$..['bicycle','price']",                            // recursive descent specfic node with name match 
+        //"$..[?(@.price < 10)]",                            // recursive descent specfic node with conditionally match 
+        //"$.store.book[?(@.author && @.title)]",            // existence check
         //"$.store.book[?(!@.isbn)]",                        // non-existence check
         "$.store.*"                                       // wildcard child
-        //"$.store.book[?(length(@.author) > 5)]"            // function usage
+                                                          ////"$.store.book[?(length(@.author) > 5)]"            // function usage
     )]
     public string JsonPath { get; set; }
 

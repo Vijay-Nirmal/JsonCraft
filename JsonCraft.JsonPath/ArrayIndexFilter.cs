@@ -38,7 +38,12 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            if (current.TryGetNonEnumeratedCount(out var count))
+            var hasCount = current.TryGetNonEnumeratedCount(out int count);
+            if (hasCount && count == 0)
+            {
+                return Enumerable.Empty<JsonElement>();
+            }
+            else if (count == 1)
             {
                 return ExecuteFilter(root, current.First(), settings);
             }

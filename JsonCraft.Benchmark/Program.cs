@@ -14,6 +14,7 @@ var config = ManualConfig.Create(DefaultConfig.Instance)
                         .WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(100)
                                                                 .WithRatioStyle(RatioStyle.Trend));
 
+
 var report = BenchmarkRunner.Run<BenchmarkJsonPath>(config);
 
 
@@ -47,10 +48,10 @@ var jsonDocument = JsonDocument.Parse(jsonString);
 var newtonsoftJson = JToken.Parse(jsonString);
 
 //var start = Stopwatch.GetTimestamp();
-//for (int i = 0; i < 10_000_000; i++)
+//for (int i = 0; i < 100_000_000; i++)
 //{
 //    int count = 0;
-//    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*"))
+//    foreach (var item in JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.bicycle.color"))
 //    {
 //        count++;
 //    }
@@ -63,8 +64,11 @@ var newtonsoftJson = JToken.Parse(jsonString);
 //    //    count++;
 //    //}
 //}
+//Console.WriteLine();
 //Console.WriteLine(Stopwatch.GetElapsedTime(start));
 //Console.WriteLine("===================================================");
-//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*").Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine(string.Join("\n", newtonsoftJson.SelectTokens("$.store.bicycle.color").Select(x => x.ToString())));
+//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..['bicycle','price']").Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.bicycle.color").ToList().Select(x => JsonSerializer.Serialize(x))));
 //Console.WriteLine("===================================================");
-//Console.WriteLine(string.Join("\n", BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..*").Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine(string.Join("\n", BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.author && @.title)]").Select(x => JsonSerializer.Serialize(x))));
