@@ -28,59 +28,45 @@ namespace JsonCraft.JsonPath
             if (enumerator is not null)
             {
                 var stack = new Stack<IEnumerator>();
-                try
+                while (true)
                 {
-                    while (true)
+                    if (enumerator.MoveNext())
                     {
-                        if (enumerator.MoveNext())
+                        JsonElement innerElement = default;
+                        if (enumerator is JsonElement.ArrayEnumerator arrayEnumerator)
                         {
-                            JsonElement innerElement = default;
-                            if (enumerator is JsonElement.ArrayEnumerator arrayEnumerator)
+                            var element = arrayEnumerator.Current;
+                            innerElement = element;
+                            stack.Push(enumerator);
+                        }
+                        else if (enumerator is JsonElement.ObjectEnumerator objectEnumerator)
+                        {
+                            var element = objectEnumerator.Current;
+                            innerElement = element.Value;
+                            // TODO: Using NameEquals instead of Contains with foreach load reduces allocation but increases CPU time, so don't doing that. In Net 10, Try Use GetRawUtf8PropertyName and use AlternateLookup with HashSet(if it doesn't increase the memory usage)
+                            if (_names.Contains(element.Name))
                             {
-                                var element = arrayEnumerator.Current;
-                                innerElement = element;
-                                stack.Push(enumerator);
+                                yield return innerElement;
                             }
-                            else if (enumerator is JsonElement.ObjectEnumerator objectEnumerator)
-                            {
-                                var element = objectEnumerator.Current;
-                                innerElement = element.Value;
-                                // TODO: Using NameEquals instead of Contains with foreach load reduces allocation but increases CPU time, so don't doing that. In Net 10, Try Use GetRawUtf8PropertyName and use AlternateLookup with HashSet(if it doesn't increase the memory usage)
-                                if (_names.Contains(element.Name))
-                                {
-                                    yield return innerElement;
-                                }
-                                stack.Push(enumerator);
-                            }
+                            stack.Push(enumerator);
+                        }
 
-                            if (innerElement.ValueKind == JsonValueKind.Array)
-                            {
-                                enumerator = innerElement.EnumerateArray();
-                            }
-                            else if (innerElement.ValueKind == JsonValueKind.Object)
-                            {
-                                enumerator = innerElement.EnumerateObject();
-                            }
-                        }
-                        else if (stack.Count > 0)
+                        if (innerElement.ValueKind == JsonValueKind.Array)
                         {
-                            (enumerator as IDisposable)?.Dispose();
-                            enumerator = stack.Pop();
+                            enumerator = innerElement.EnumerateArray();
                         }
-                        else
+                        else if (innerElement.ValueKind == JsonValueKind.Object)
                         {
-                            yield break;
+                            enumerator = innerElement.EnumerateObject();
                         }
                     }
-                }
-                finally
-                {
-                    (enumerator as IDisposable)?.Dispose();
-
-                    while (stack.Count > 0) // Clean up in case of an exception.
+                    else if (stack.Count > 0)
                     {
                         enumerator = stack.Pop();
-                        (enumerator as IDisposable)?.Dispose();
+                    }
+                    else
+                    {
+                        yield break;
                     }
                 }
             }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text.Json;
 
 namespace JsonCraft.JsonPath
@@ -18,23 +19,59 @@ namespace JsonCraft.JsonPath
                 yield return current;
             }
 
-            if (current.ValueKind == JsonValueKind.Object)
+            IEnumerator? enumerator = null;
+            if (current.ValueKind == JsonValueKind.Array)
             {
-                foreach (var d in current.EnumerateObject())
-                {
-                    foreach (var item in ExecuteFilter(root, d.Value, settings))
-                    {
-                        yield return item;
-                    }
-                }
+                enumerator = current.EnumerateArray();
             }
-            else if (current.ValueKind == JsonValueKind.Array)
+            else if (current.ValueKind == JsonValueKind.Object)
             {
-                foreach (var d in current.EnumerateArray())
+                enumerator = current.EnumerateObject();
+            }
+
+            if (enumerator is not null)
+            {
+                var stack = new Stack<IEnumerator>();
+                while (true)
                 {
-                    foreach (var item in ExecuteFilter(root, d, settings))
+                    if (enumerator.MoveNext())
                     {
-                        yield return item;
+                        JsonElement innerElement = default;
+                        if (enumerator is JsonElement.ArrayEnumerator arrayEnumerator)
+                        {
+                            innerElement = arrayEnumerator.Current;
+                            if (Expression.IsMatch(root, innerElement, settings))
+                            {
+                                yield return innerElement;
+                            }
+                            stack.Push(enumerator);
+                        }
+                        else if (enumerator is JsonElement.ObjectEnumerator objectEnumerator)
+                        {
+                            innerElement = objectEnumerator.Current.Value;
+                            if (Expression.IsMatch(root, innerElement, settings))
+                            {
+                                yield return innerElement;
+                            }
+                            stack.Push(enumerator);
+                        }
+
+                        if (innerElement.ValueKind == JsonValueKind.Array)
+                        {
+                            enumerator = innerElement.EnumerateArray();
+                        }
+                        else if (innerElement.ValueKind == JsonValueKind.Object)
+                        {
+                            enumerator = innerElement.EnumerateObject();
+                        }
+                    }
+                    else if (stack.Count > 0)
+                    {
+                        enumerator = stack.Pop();
+                    }
+                    else
+                    {
+                        yield break;
                     }
                 }
             }
@@ -42,34 +79,7 @@ namespace JsonCraft.JsonPath
 
         public override IEnumerable<JsonElement> ExecuteFilter(JsonElement root, IEnumerable<JsonElement> current, JsonSelectSettings? settings)
         {
-            foreach (var item in current)
-            {
-                if (Expression.IsMatch(root, item, settings))
-                {
-                    yield return item;
-                }
-
-                if (item.ValueKind == JsonValueKind.Object)
-                {
-                    foreach (var d in item.EnumerateObject())
-                    {
-                        foreach (var objItem in ExecuteFilter(root, d.Value, settings))
-                        {
-                            yield return objItem;
-                        }
-                    }
-                }
-                else if (item.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var d in item.EnumerateArray())
-                    {
-                        foreach (var arrItem in ExecuteFilter(root, d, settings))
-                        {
-                            yield return arrItem;
-                        }
-                    }
-                }
-            }
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }
