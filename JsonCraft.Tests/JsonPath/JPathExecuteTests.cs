@@ -16,16 +16,16 @@ namespace JsonCraft.Tests.JsonPath
             string statusJson = @"{""usingmem"": ""214376""}";//214,376
             var jObj = JsonDocument.Parse(statusJson);
 
-            var aa = jObj.SelectToken("$..[?(@.usingmem>10)]");//found,10
+            var aa = jObj.SelectElement("$..[?(@.usingmem>10)]");//found,10
             JsonAssert.AreEqual(jObj, aa);
 
-            var bb = jObj.SelectToken("$..[?(@.usingmem>27000)]");//null, 27,000
+            var bb = jObj.SelectElement("$..[?(@.usingmem>27000)]");//null, 27,000
             JsonAssert.AreEqual(jObj, bb);
 
-            var cc = jObj.SelectToken("$..[?(@.usingmem>21437)]");//found, 21,437
+            var cc = jObj.SelectElement("$..[?(@.usingmem>21437)]");//found, 21,437
             JsonAssert.AreEqual(jObj, cc);
 
-            var dd = jObj.SelectToken("$..[?(@.usingmem>21438)]");//null,21,438
+            var dd = jObj.SelectElement("$..[?(@.usingmem>21438)]");//null,21,438
             JsonAssert.AreEqual(jObj, dd);
         }
 
@@ -38,7 +38,7 @@ namespace JsonCraft.Tests.JsonPath
 
             Assert.ThrowsException<RegexMatchTimeoutException>(() =>
             {
-                jObj.SelectTokens(
+                jObj.SelectElements(
                     $"[?(@.b =~ /{RegexBacktrackingPattern}/)]",
                     new JsonSelectSettings
                     {
@@ -65,7 +65,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.persons[?(@.age > 3)]").ToList();
+            var results = models.SelectElement("$.persons[?(@.age > 3)]").ToList();
 
             Assert.AreEqual(1, results.Count);
         }
@@ -88,7 +88,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.persons[?(@.age > '3')]").ToList();
+            var results = models.SelectElement("$.persons[?(@.age > '3')]").ToList();
 
             Assert.AreEqual(1, results.Count);
         }
@@ -122,7 +122,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.b..*.id").ToList();
+            var results = models.SelectElement("$.b..*.id").ToList();
 
             Assert.AreEqual(3, results.Count);
             Assert.AreEqual(2, results[0].GetInt32());
@@ -163,7 +163,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.elements..[?(@.id=='AAA')]").ToList();
+            var results = models.SelectElement("$.elements..[?(@.id=='AAA')]").ToList();
 
             Assert.AreEqual(1, results.Count);
             JsonAssert.AreEqual(models.RootElement.GetProperty("elements")[0].GetProperty("children")[0].GetProperty("children")[0], results[0]);
@@ -202,7 +202,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.elements[?(true)]").ToList();
+            var results = models.SelectElement("$.elements[?(true)]").ToList();
 
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(results[0], models.RootElement.GetProperty("elements")[0]);
@@ -242,7 +242,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$.elements..[?(true)]").ToList();
+            var results = models.SelectElement("$.elements..[?(true)]").ToList();
 
             // TODO: I think this should be 15, because results from online evaluators doesn't include the root/self element. Need to verify if changing the returning of self will affect other tests.
             Assert.AreEqual(16, results.Count);
@@ -277,10 +277,10 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            int result = models.SelectTokens("$..['My.Child.Node']").Count();
+            int result = models.SelectElement("$..['My.Child.Node']").Count();
             Assert.AreEqual(1, result);
 
-            result = models.SelectTokens("..['My.Child.Node']").Count();
+            result = models.SelectElement("..['My.Child.Node']").Count();
             Assert.AreEqual(1, result);
         }
 
@@ -313,7 +313,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var models = JsonDocument.Parse(json);
 
-            var results = models.SelectTokens("$..['My.Child.Node','Prop1','Prop2']").ToList();
+            var results = models.SelectElement("$..['My.Child.Node','Prop1','Prop2']").ToList();
             Assert.AreEqual("Val1", results[0].GetString());
             Assert.AreEqual("Val2", results[1].GetString());
             Assert.AreEqual(JsonValueKind.Object, results[2].ValueKind);
@@ -361,7 +361,7 @@ namespace JsonCraft.Tests.JsonPath
     ]
 }";
             var jToken = JsonDocument.Parse(json);
-            var tokens = jToken.SelectTokens("$..en-US").ToList();
+            var tokens = jToken.SelectElement("$..en-US").ToList();
 
             Assert.AreEqual(3, tokens.Count);
             Assert.AreEqual("Add", tokens[0].ToString());
@@ -379,7 +379,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var o = JsonDocument.Parse(json);
 
-            var results = o.SelectTokens("$..test").ToList();
+            var results = o.SelectElement("$..test").ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("no one will find me", results[0].ToString());
@@ -391,7 +391,7 @@ namespace JsonCraft.Tests.JsonPath
             string json = "{\"bookId\":\"1000\"}";
             var o = JsonDocument.Parse(json);
 
-            var bookId = o.SelectToken("bookId", new JsonSelectSettings { ErrorWhenNoMatch = true });
+            var bookId = o.SelectElement("bookId", new JsonSelectSettings { ErrorWhenNoMatch = true });
 
             Assert.IsTrue(bookId.HasValue);
             Assert.AreEqual("1000", bookId.Value.GetString());
@@ -402,7 +402,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{"""": 1}");
 
-            var t = o.SelectToken("['']");
+            var t = o.SelectElement("['']");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(1, t.Value.GetInt32());
         }
@@ -412,10 +412,10 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("");
+            var t = o.SelectElement("");
             JsonAssert.AreEqual(o, t);
 
-            t = o.SelectToken("['']");
+            t = o.SelectElement("['']");
             Assert.IsNull(t);
         }
 
@@ -424,7 +424,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{"" "": 1}");
 
-            var t = o.SelectToken("[' ']");
+            var t = o.SelectElement("[' ']");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(1, t.Value.GetInt32());
         }
@@ -434,7 +434,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken(" ");
+            var t = o.SelectElement(" ");
             JsonAssert.AreEqual(o, t);
         }
 
@@ -443,7 +443,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("$");
+            var t = o.SelectElement("$");
             JsonAssert.AreEqual(o, t);
         }
 
@@ -452,7 +452,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""$values"": [1, 2, 3]}");
 
-            var t = o.SelectToken("$values[1]");
+            var t = o.SelectElement("$values[1]");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(2, t.Value.GetInt32());
         }
@@ -462,7 +462,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("Blah");
+            var t = o.SelectElement("Blah");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(JsonValueKind.Number, t.Value.ValueKind);
             Assert.AreEqual(1, t.Value.GetInt32());
@@ -473,7 +473,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1, ""Blah2"": 2}");
 
-            var t = o.SelectTokens("$.*").ToList();
+            var t = o.SelectElement("$.*").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             Assert.AreEqual(1, t[0].GetInt32());
@@ -485,7 +485,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("['Blah']");
+            var t = o.SelectElement("['Blah']");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(JsonValueKind.Number, t.Value.ValueKind);
             Assert.AreEqual(1, t.Value.GetInt32());
@@ -496,7 +496,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("Missing[1]");
+            var t = o.SelectElement("Missing[1]");
             Assert.IsNull(t);
         }
 
@@ -505,7 +505,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var t = o.SelectToken("[1]");
+            var t = o.SelectElement("[1]");
             Assert.IsNull(t);
         }
 
@@ -514,7 +514,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            Assert.ThrowsException<JsonException>(() => { o.SelectToken("[1]", true); }, @"Index 1 not valid on JObject.");
+            Assert.ThrowsException<JsonException>(() => { o.SelectElement("[1]", true); }, @"Index 1 not valid on JObject.");
         }
 
         [TestMethod]
@@ -522,7 +522,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            Assert.ThrowsException<JsonException>(() => { o.SelectToken("[*]", true); }, @"Index * not valid on JObject.");
+            Assert.ThrowsException<JsonException>(() => { o.SelectElement("[*]", true); }, @"Index * not valid on JObject.");
         }
 
         [TestMethod]
@@ -530,7 +530,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            Assert.ThrowsException<JsonException>(() => { o.SelectToken("[:]", true); }, @"Array slice is not valid on JObject.");
+            Assert.ThrowsException<JsonException>(() => { o.SelectElement("[:]", true); }, @"Array slice is not valid on JObject.");
         }
 
         [TestMethod]
@@ -538,7 +538,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            var t = a.SelectToken("BlahBlah");
+            var t = a.SelectElement("BlahBlah");
             Assert.IsNull(t);
         }
 
@@ -547,7 +547,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[0, 1]"); }, @"Path returned multiple tokens.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[0, 1]"); }, @"Path returned multiple tokens.");
         }
 
         [TestMethod]
@@ -555,7 +555,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("BlahBlah", true); }, @"Property 'BlahBlah' not valid on JArray.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("BlahBlah", true); }, @"Property 'BlahBlah' not valid on JArray.");
         }
 
         [TestMethod]
@@ -563,7 +563,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[9,10]", true); }, @"Index 9 outside the bounds of JArray.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[9,10]", true); }, @"Index 9 outside the bounds of JArray.");
         }
 
         [TestMethod]
@@ -571,7 +571,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            Assert.ThrowsException<JsonException>(() => { o.SelectToken("Missing", true); }, "Property 'Missing' does not exist on JObject.");
+            Assert.ThrowsException<JsonException>(() => { o.SelectElement("Missing", true); }, "Property 'Missing' does not exist on JObject.");
         }
 
         [TestMethod]
@@ -579,7 +579,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            var v = o.SelectToken("Blah", true);
+            var v = o.SelectElement("Blah", true);
             Assert.IsTrue(v.HasValue);
             Assert.AreEqual(1, v.Value.GetInt32());
         }
@@ -589,7 +589,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var o = JsonDocument.Parse(@"{""Blah"": 1}");
 
-            Assert.ThrowsException<JsonException>(() => { o.SelectToken("['Missing','Missing2']", true); }, "Property 'Missing' does not exist on JObject.");
+            Assert.ThrowsException<JsonException>(() => { o.SelectElement("['Missing','Missing2']", true); }, "Property 'Missing' does not exist on JObject.");
         }
 
         [TestMethod]
@@ -597,7 +597,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("['Missing','Missing2']", true); }, "Properties 'Missing', 'Missing2' not valid on JArray.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("['Missing','Missing2']", true); }, "Properties 'Missing', 'Missing2' not valid on JArray.");
         }
 
         [TestMethod]
@@ -605,15 +605,15 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[99:]", true); }, "Array slice of 99 to * returned no results.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[99:]", true); }, "Array slice of 99 to * returned no results.");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[1:-19]", true); }, "Array slice of 1 to -19 returned no results.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[1:-19]", true); }, "Array slice of 1 to -19 returned no results.");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[:-19]", true); }, "Array slice of * to -19 returned no results.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[:-19]", true); }, "Array slice of * to -19 returned no results.");
 
             a = JsonDocument.Parse(@"[]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[:]", true); }, "Array slice of * to * returned no results.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[:]", true); }, "Array slice of * to * returned no results.");
         }
 
         [TestMethod]
@@ -621,7 +621,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            var t = a.SelectToken("[1000].Ha");
+            var t = a.SelectElement("[1000].Ha");
             Assert.IsNull(t);
         }
 
@@ -630,7 +630,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5]");
 
-            Assert.ThrowsException<JsonException>(() => { a.SelectToken("[1000].Ha", true); }, "Index 1000 outside the bounds of JArray.");
+            Assert.ThrowsException<JsonException>(() => { a.SelectElement("[1000].Ha", true); }, "Index 1000 outside the bounds of JArray.");
         }
 
         [TestMethod]
@@ -638,7 +638,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4]");
 
-            var t = a.SelectToken("[1]");
+            var t = a.SelectElement("[1]");
             Assert.IsTrue(t.HasValue);
             Assert.AreEqual(JsonValueKind.Number, t.Value.ValueKind);
             Assert.AreEqual(2, t.Value.GetInt32());
@@ -649,28 +649,28 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4, 5, 6, 7, 8, 9]");
 
-            var t = a.SelectTokens("[-3:]").ToList();
+            var t = a.SelectElement("[-3:]").ToList();
             Assert.AreEqual(3, t.Count);
             Assert.AreEqual(7, t[0].GetInt32());
             Assert.AreEqual(8, t[1].GetInt32());
             Assert.AreEqual(9, t[2].GetInt32());
 
-            t = a.SelectTokens("[-1:-2:-1]").ToList();
+            t = a.SelectElement("[-1:-2:-1]").ToList();
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual(9, t[0].GetInt32());
 
-            t = a.SelectTokens("[-2:-1]").ToList();
+            t = a.SelectElement("[-2:-1]").ToList();
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual(8, t[0].GetInt32());
 
-            t = a.SelectTokens("[1:1]").ToList();
+            t = a.SelectElement("[1:1]").ToList();
             Assert.AreEqual(0, t.Count);
 
-            t = a.SelectTokens("[1:2]").ToList();
+            t = a.SelectElement("[1:2]").ToList();
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual(2, t[0].GetInt32());
 
-            t = a.SelectTokens("[::-1]").ToList();
+            t = a.SelectElement("[::-1]").ToList();
             Assert.AreEqual(9, t.Count);
             Assert.AreEqual(9, t[0].GetInt32());
             Assert.AreEqual(8, t[1].GetInt32());
@@ -682,7 +682,7 @@ namespace JsonCraft.Tests.JsonPath
             Assert.AreEqual(2, t[7].GetInt32());
             Assert.AreEqual(1, t[8].GetInt32());
 
-            t = a.SelectTokens("[::-2]").ToList();
+            t = a.SelectElement("[::-2]").ToList();
             Assert.AreEqual(5, t.Count);
             Assert.AreEqual(9, t[0].GetInt32());
             Assert.AreEqual(7, t[1].GetInt32());
@@ -696,7 +696,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4]");
 
-            var t = a.SelectTokens("[*]").ToList();
+            var t = a.SelectElement("[*]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(4, t.Count);
             Assert.AreEqual(1, t[0].GetInt32());
@@ -710,7 +710,7 @@ namespace JsonCraft.Tests.JsonPath
         {
             var a = JsonDocument.Parse(@"[1, 2, 3, 4]");
 
-            var t = a.SelectTokens("[1,2,0]").ToList();
+            var t = a.SelectElement("[1,2,0]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(3, t.Count());
             Assert.AreEqual(2, t.ElementAt(0).GetInt32());
@@ -725,7 +725,7 @@ namespace JsonCraft.Tests.JsonPath
             var o2 = JsonDocument.Parse(@"{""Name"": 2}").RootElement;
             var a = JsonDocument.Parse(@"[" + o1.GetRawText() + "," + o2.GetRawText() + "]").RootElement;
 
-            var t = a.SelectTokens("$..Name").ToList();
+            var t = a.SelectElements("$..Name").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             Assert.AreEqual(1, t[0].GetInt32());
@@ -741,7 +741,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            IList<JsonElement> t = a.SelectTokens("$..*").ToList();
+            IList<JsonElement> t = a.SelectElement("$..*").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(5, t.Count);
             JsonAssert.AreEqual(a, t[0]);
@@ -759,7 +759,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            IList<JsonElement> t = a.SelectTokens("$..Name").ToList();
+            IList<JsonElement> t = a.SelectElement("$..Name").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(4, t.Count);
             Assert.AreEqual(1, t[0].GetInt32());
@@ -778,7 +778,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            IList<JsonElement> t = a.SelectTokens("$..*").ToList();
+            IList<JsonElement> t = a.SelectElement("$..*").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(9, t.Count);
 
@@ -794,11 +794,11 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"{""Blah"": [1, 2, 3]}";
             var o = JsonDocument.Parse(json);
 
-            var t = o.SelectToken("Blah");
+            var t = o.SelectElement("Blah");
             Assert.IsNotNull(t);
             Assert.AreEqual(JsonValueKind.Array, t.Value.ValueKind);
 
-            t = o.SelectToken("Blah[2]");
+            t = o.SelectElement("Blah[2]");
             Assert.AreEqual(JsonValueKind.Number, t.Value.ValueKind);
             Assert.AreEqual(3, t.Value.GetInt32());
         }
@@ -809,7 +809,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"{""People"":[{""N"":""Jeff""}]}";
             var o2 = JsonDocument.Parse(json);
 
-            var a2 = o2.SelectToken("People[0].N").Value.GetString();
+            var a2 = o2.SelectElement("People[0].N").Value.GetString();
 
             Assert.AreEqual("Jeff", a2);
         }
@@ -820,7 +820,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": ""ho""}, {""hi2"": ""ha""}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @.hi ) ]").ToList();
+            var t = a.SelectElement("[ ?( @.hi ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(1, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": ""ho""}"), t[0]);
@@ -832,7 +832,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": ""ho""}, {""hi"": ""ha""}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @.['hi'] == 'ha' ) ]").ToList();
+            var t = a.SelectElement("[ ?( @.['hi'] == 'ha' ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(1, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": ""ha""}"), t[0]);
@@ -844,7 +844,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[[{""hi"": ""ho""}], [{""hi"": ""ha""}]]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @..hi <> 'ha' ) ]").ToList();
+            var t = a.SelectElement("[ ?( @..hi <> 'ha' ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(1, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"[{""hi"": ""ho""}]"), t[0]);
@@ -856,7 +856,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[1, 2, 3]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @ > 1 ) ]").ToList();
+            var t = a.SelectElement("[ ?( @ > 1 ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             Assert.AreEqual(2, t[0].GetInt32());
@@ -869,7 +869,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[1, 2, 3, 4, 5, 6, 7, 8, 9]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[?(@ <> 1)][?(@ <> 4)][?(@ < 7)]").ToList();
+            var t = a.SelectElement("[?(@ <> 1)][?(@ <> 4)][?(@ < 7)]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(0, t.Count);
         }
@@ -880,7 +880,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": 1}, {""hi"": 2}, {""hi"": 3}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @.hi > 1 ) ]").ToList();
+            var t = a.SelectElement("[ ?( @.hi > 1 ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": 2}"), t[0]);
@@ -893,7 +893,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": 1}, {""hi"": 2}, {""hi"": 3}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( 1 < @.hi ) ]").ToList();
+            var t = a.SelectElement("[ ?( 1 < @.hi ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": 2}"), t[0]);
@@ -906,7 +906,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": 1}, {""hi"": 2}, {""hi"": 3}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @.hi > 1 ) ]").ToList();
+            var t = a.SelectElement("[ ?( @.hi > 1 ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": 2}"), t[0]);
@@ -919,7 +919,7 @@ namespace JsonCraft.Tests.JsonPath
             var json = @"[{""hi"": 1}, {""hi"": 2}, {""hi"": 2.0}, {""hi"": 3}]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[ ?( @.hi >= 1 ) ]").ToList();
+            var t = a.SelectElement("[ ?( @.hi >= 1 ) ]").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(4, t.Count);
             JsonAssert.AreEqual(JsonDocument.Parse(@"{""hi"": 1}"), t[0]);
@@ -938,7 +938,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            var t = a.SelectTokens("[?(@.cast[?(@.name=='Will Smith')])].name").ToList();
+            var t = a.SelectElement("[?(@.cast[?(@.name=='Will Smith')])].name").ToList();
             Assert.IsNotNull(t);
             Assert.AreEqual(2, t.Count);
             Assert.AreEqual("Bad Boys", t[0].GetString());
@@ -954,7 +954,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            var v = a.SelectToken("[1].Property2[1][0]").Value;
+            var v = a.SelectElement("[1].Property2[1][0]").Value;
             Assert.AreEqual(1, v.GetInt32());
         }
 
@@ -968,7 +968,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            var results = a.SelectTokens("[?(@.price > @.max_price)]").ToList();
+            var results = a.SelectElement("[?(@.price > @.max_price)]").ToList();
             Assert.AreEqual(1, results.Count);
             JsonAssert.AreEqual(a.RootElement[2], results[0]);
         }
@@ -983,7 +983,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            var results = a.SelectTokens("[?(true)]").ToList();
+            var results = a.SelectElement("[?(true)]").ToList();
             Assert.AreEqual(3, results.Count);
             JsonAssert.AreEqual(a.RootElement[0], results[0]);
             JsonAssert.AreEqual(a.RootElement[1], results[1]);
@@ -1000,7 +1000,7 @@ namespace JsonCraft.Tests.JsonPath
             ]";
             var a = JsonDocument.Parse(json);
 
-            var results = a.SelectTokens("[?(true)]").ToList();
+            var results = a.SelectElement("[?(true)]").ToList();
             Assert.AreEqual(3, results.Count);
             JsonAssert.AreEqual(a.RootElement[0], results[0]);
             JsonAssert.AreEqual(a.RootElement[1], results[1]);
@@ -1028,7 +1028,7 @@ namespace JsonCraft.Tests.JsonPath
             }";
             var o = JsonDocument.Parse(json);
 
-            var tokens = o.SelectTokens("$..*[?(@.text)]").ToList();
+            var tokens = o.SelectElement("$..*[?(@.text)]").ToList();
             int i = 0;
             Assert.AreEqual("Sort system", tokens[i++].GetProperty("text").GetString());
             Assert.AreEqual("TSP-1", tokens[i++].GetProperty("text").GetString());
@@ -1060,22 +1060,22 @@ namespace JsonCraft.Tests.JsonPath
             }";
             var o = JsonDocument.Parse(json);
 
-            var t = o.SelectTokens("$.prop[?(@.childProp =='ff2dc672-6e15-4aa2-afb0-18f4f69596ad')]").ToList();
+            var t = o.SelectElement("$.prop[?(@.childProp =='ff2dc672-6e15-4aa2-afb0-18f4f69596ad')]").ToList();
             Assert.AreEqual(2, t.Count);
 
-            t = o.SelectTokens("$.prop[?(@.childProp =='http://localhost')]").ToList();
+            t = o.SelectElement("$.prop[?(@.childProp =='http://localhost')]").ToList();
             Assert.AreEqual(2, t.Count);
 
-            t = o.SelectTokens("$.prop[?(@.childProp =='2000-12-05T05:07:59Z')]").ToList();
+            t = o.SelectElement("$.prop[?(@.childProp =='2000-12-05T05:07:59Z')]").ToList();
             Assert.AreEqual(2, t.Count);
 
-            t = o.SelectTokens("$.prop[?(@.childProp =='2000-12-05T05:07:59-10:00')]").ToList();
+            t = o.SelectElement("$.prop[?(@.childProp =='2000-12-05T05:07:59-10:00')]").ToList();
             Assert.AreEqual(2, t.Count);
 
-            t = o.SelectTokens("$.prop[?(@.childProp =='SGVsbG8gd29ybGQ=')]").ToList();
+            t = o.SelectElement("$.prop[?(@.childProp =='SGVsbG8gd29ybGQ=')]").ToList();
             Assert.AreEqual(2, t.Count);
 
-            t = o.SelectTokens("$.prop[?(@.childProp =='365.23:59:59')]").ToList();
+            t = o.SelectElement("$.prop[?(@.childProp =='365.23:59:59')]").ToList();
             Assert.AreEqual(2, t.Count);
         }
 
@@ -1115,28 +1115,28 @@ namespace JsonCraft.Tests.JsonPath
 
             var o = JsonDocument.Parse(json);
 
-            string name = o.SelectToken("Manufacturers[0].Name").Value.GetString();
+            string name = o.SelectElement("Manufacturers[0].Name").Value.GetString();
             // Acme Co
 
-            decimal productPrice = o.SelectToken("Manufacturers[0].Products[0].Price").Value.GetDecimal();
+            decimal productPrice = o.SelectElement("Manufacturers[0].Products[0].Price").Value.GetDecimal();
             // 50
 
-            string productName = o.SelectToken("Manufacturers[1].Products[0].Name").Value.GetString();
+            string productName = o.SelectElement("Manufacturers[1].Products[0].Name").Value.GetString();
             // Elbow Grease
 
             Assert.AreEqual("Acme Co", name);
             Assert.AreEqual(50m, productPrice);
             Assert.AreEqual("Elbow Grease", productName);
 
-            IList<string> storeNames = o.SelectToken("Stores").Value.EnumerateArray().Select(s => s.GetString()).ToList();
+            IList<string> storeNames = o.SelectElement("Stores").Value.EnumerateArray().Select(s => s.GetString()).ToList();
             // Lambton Quay
             // Willis Street
 
-            IList<string> firstProductNames = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Select(m => m.SelectToken("Products[1].Name") is JsonElement jsonElement ? jsonElement.GetString() : null).ToList();
+            IList<string> firstProductNames = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Select(m => m.SelectElement("Products[1].Name") is JsonElement jsonElement ? jsonElement.GetString() : null).ToList();
             // null
             // Headlight Fluid
 
-            decimal totalPrice = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Sum(m => m.SelectToken("Products[0].Price").Value.GetDecimal());
+            decimal totalPrice = o.RootElement.GetProperty("Manufacturers").EnumerateArray().Sum(m => m.SelectElement("Products[0].Price").Value.GetDecimal());
             // 149.95
 
             Assert.AreEqual(2, storeNames.Count);
@@ -1179,19 +1179,19 @@ namespace JsonCraft.Tests.JsonPath
 
             var a = JsonDocument.Parse(json);
 
-            List<JsonElement> result = a.SelectTokens("$.[?(@.value!=1)]").ToList();
+            List<JsonElement> result = a.SelectElement("$.[?(@.value!=1)]").ToList();
             Assert.AreEqual(4, result.Count);
 
-            result = a.SelectTokens("$.[?(@.value!='2000-12-05T05:07:59-10:00')]").ToList();
+            result = a.SelectElement("$.[?(@.value!='2000-12-05T05:07:59-10:00')]").ToList();
             Assert.AreEqual(4, result.Count);
 
-            result = a.SelectTokens("$.[?(@.value!=null)]").ToList();
+            result = a.SelectElement("$.[?(@.value!=null)]").ToList();
             Assert.AreEqual(4, result.Count);
 
-            result = a.SelectTokens("$.[?(@.value!=123)]").ToList();
+            result = a.SelectElement("$.[?(@.value!=123)]").ToList();
             Assert.AreEqual(3, result.Count);
 
-            result = a.SelectTokens("$.[?(@.value)]").ToList();
+            result = a.SelectElement("$.[?(@.value)]").ToList();
             Assert.AreEqual(4, result.Count);
         }
 
@@ -1240,10 +1240,10 @@ namespace JsonCraft.Tests.JsonPath
 
             var a = JsonDocument.Parse(json);
 
-            List<JsonElement> result = a.SelectTokens("$.[?($.[0].store.bicycle.price < 20)]").ToList();
+            List<JsonElement> result = a.SelectElement("$.[?($.[0].store.bicycle.price < 20)]").ToList();
             Assert.AreEqual(1, result.Count);
 
-            result = a.SelectTokens("$.[?($.[0].store.bicycle.price < 10)]").ToList();
+            result = a.SelectElement("$.[?($.[0].store.bicycle.price < 10)]").ToList();
             Assert.AreEqual(0, result.Count);
         }
 
@@ -1292,10 +1292,10 @@ namespace JsonCraft.Tests.JsonPath
 
             var a = JsonDocument.Parse(json);
 
-            List<JsonElement> result = a.SelectTokens("$..book[?(@.price <= $['expensive'])]").ToList();
+            List<JsonElement> result = a.SelectElement("$..book[?(@.price <= $['expensive'])]").ToList();
             Assert.AreEqual(2, result.Count);
 
-            result = a.SelectTokens("$.store..[?(@.price > $.expensive)]").ToList();
+            result = a.SelectElement("$.store..[?(@.price > $.expensive)]").ToList();
             Assert.AreEqual(3, result.Count);
         }
 
@@ -1314,7 +1314,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var rootObject = JsonDocument.Parse(json);
 
-            List<JsonElement> result = rootObject.SelectTokens("$.dateObjectsArray[?(@.date == $.referenceDate)]").ToList();
+            List<JsonElement> result = rootObject.SelectElement("$.dateObjectsArray[?(@.date == $.referenceDate)]").ToList();
             Assert.AreEqual(2, result.Count);
         }
 
@@ -1336,13 +1336,13 @@ namespace JsonCraft.Tests.JsonPath
             var o = JsonDocument.Parse(json);
 
             // just to verify expected behavior hasn't changed
-            IEnumerable<string> sanity1 = o.SelectTokens("Values[?(@.Coercible == '1')].Name").Select(x => x.GetString()).ToList();
-            IEnumerable<string> sanity2 = o.SelectTokens("Values[?(@.Coercible != '1')].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> sanity1 = o.SelectElement("Values[?(@.Coercible == '1')].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> sanity2 = o.SelectElement("Values[?(@.Coercible != '1')].Name").Select(x => x.GetString()).ToList();
             // new behavior
-            IEnumerable<string> mustBeNumber1 = o.SelectTokens("Values[?(@.Coercible === 1)].Name").Select(x => x.GetString()).ToList();
-            IEnumerable<string> mustBeString1 = o.SelectTokens("Values[?(@.Coercible !== 1)].Name").Select(x => x.GetString()).ToList();
-            IEnumerable<string> mustBeString2 = o.SelectTokens("Values[?(@.Coercible === '1')].Name").Select(x => x.GetString()).ToList();
-            IEnumerable<string> mustBeNumber2 = o.SelectTokens("Values[?(@.Coercible !== '1')].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> mustBeNumber1 = o.SelectElement("Values[?(@.Coercible === 1)].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> mustBeString1 = o.SelectElement("Values[?(@.Coercible !== 1)].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> mustBeString2 = o.SelectElement("Values[?(@.Coercible === '1')].Name").Select(x => x.GetString()).ToList();
+            IEnumerable<string> mustBeNumber2 = o.SelectElement("Values[?(@.Coercible !== '1')].Name").Select(x => x.GetString()).ToList();
 
             // FAILS-- JPath returns { "String" }
             //CollectionAssert.AreEquivalent(new[] { "Number", "String" }, sanity1);
@@ -1369,7 +1369,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var t = JsonDocument.Parse(json);
 
-            var tokens = t.SelectTokens("$..[?(@.['@Type'] == 'FindMe')]").ToList();
+            var tokens = t.SelectElement("$..[?(@.['@Type'] == 'FindMe')]").ToList();
             Assert.AreEqual(1, tokens.Count);
         }
 
@@ -1386,7 +1386,7 @@ namespace JsonCraft.Tests.JsonPath
 
             var t = JsonDocument.Parse(json);
 
-            Assert.IsNotNull(t.SelectToken(@"Values[?(@.Property == 1.0)]"));
+            Assert.IsNotNull(t.SelectElement(@"Values[?(@.Property == 1.0)]"));
         }
 
         [DataTestMethod]
@@ -1407,14 +1407,14 @@ namespace JsonCraft.Tests.JsonPath
 
             var t = JsonDocument.Parse(completeJson);
 
-            bool hasEqualsStrict = t.SelectTokens(completeEqualsStrictPath).Any();
+            bool hasEqualsStrict = t.SelectElement(completeEqualsStrictPath).Any();
             Assert.AreEqual(
                 matchStrict,
                 hasEqualsStrict,
                 $"Expected {value1} and {value2} to match: {matchStrict}"
                 + Environment.NewLine + completeJson + Environment.NewLine + completeEqualsStrictPath);
 
-            bool hasNotEqualsStrict = t.SelectTokens(completeNotEqualsStrictPath).Any();
+            bool hasNotEqualsStrict = t.SelectElement(completeNotEqualsStrictPath).Any();
             Assert.AreNotEqual(
                 matchStrict,
                 hasNotEqualsStrict,

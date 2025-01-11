@@ -44,17 +44,17 @@ string json = @"{
 JsonDocument document = JsonDocument.Parse(json);
 
 // Select single token
-JsonElement? title = document.SelectToken("$.store.book[0].title");
+JsonElement? title = document.SelectElement("$.store.book[0].title");
 Console.WriteLine(title?.GetString()); // "Sayings of the Century"
 
 // Select multiple tokens
-IEnumerable<JsonElement> authors = document.SelectTokens("$.store.book[*].author");
+IEnumerable<JsonElement> authors = document.SelectElements("$.store.book[*].author");
 foreach(var author in authors) {
     Console.WriteLine(author.GetString());
 }
 
 // Query with filter
-var expensiveBooks = document.SelectTokens("$.store.book[?(@.price > 10)]");
+var expensiveBooks = document.SelectElements("$.store.book[?(@.price > 10)]");
 ```
 
 ## Benchmark Results
@@ -227,10 +227,10 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.2605)
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `SelectToken` | `string path` | `JsonElement?` | Selects a single token using a JSONPath expression. Returns null if no match is found. |
-| `SelectToken` | `string path`<br>`JsonSelectSettings settings` | `JsonElement?` | Selects a single token using a JSONPath expression with custom settings. Throws `JsonPathException` if no match is found and `ErrorWhenNoMatch` is true. |
-| `SelectTokens` | `string path` | `IEnumerable<JsonElement>` | Selects all tokens that match the JSONPath expression. Returns empty enumerable if no matches found. |
-| `SelectTokens` | `string path`<br>`JsonSelectSettings settings` | `IEnumerable<JsonElement>` | Selects all tokens that match the JSONPath expression with custom settings. Throws `JsonPathException` if no matches found and `ErrorWhenNoMatch` is true. |
+| `SelectElement` | `string path` | `JsonElement?` | Selects a single token using a JSONPath expression. Returns null if no match is found. |
+| `SelectElement` | `string path`<br>`JsonSelectSettings settings` | `JsonElement?` | Selects a single token using a JSONPath expression with custom settings. Throws `JsonPathException` if no match is found and `ErrorWhenNoMatch` is true. |
+| `SelectElements` | `string path` | `IEnumerable<JsonElement>` | Selects all tokens that match the JSONPath expression. Returns empty enumerable if no matches found. |
+| `SelectElements` | `string path`<br>`JsonSelectSettings settings` | `IEnumerable<JsonElement>` | Selects all tokens that match the JSONPath expression with custom settings. Throws `JsonPathException` if no matches found and `ErrorWhenNoMatch` is true. |
 
 ### JsonSelectSettings Properties
 
@@ -249,7 +249,7 @@ var settings = new JsonSelectSettings {
     RegexMatchTimeout = TimeSpan.FromSeconds(1) // Timeout for regex operations
 };
 
-var result = document.SelectToken("$.nonexistent", settings);
+var result = document.SelectElement("$.nonexistent", settings);
 ```
 
 ## License

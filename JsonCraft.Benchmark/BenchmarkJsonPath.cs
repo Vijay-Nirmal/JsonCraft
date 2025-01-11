@@ -81,7 +81,7 @@ public class BenchmarkJsonPath
     [Benchmark(Baseline = true, Description = "JsonCraft.JsonPath")]
     public void Get_JsonCraft()
     {
-        var result = JsonCraft.JsonPath.JsonExtensions.SelectTokens(_jsonDocument.RootElement, JsonPath);
+        var result = JsonCraft.JsonPath.JsonExtensions.SelectElements(_jsonDocument.RootElement, JsonPath);
         result.Consume(_consumer);
     }
 
