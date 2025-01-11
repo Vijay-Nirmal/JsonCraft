@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 
     <!-- Package Metadata -->
-    <Version>1.0.0</Version>
+    <Version>1.0.0-Preview.1</Version>
     <Authors>Vijay Nirmal Pon</Authors>
     <Product>JsonCraft.JsonPath</Product>
     <Description>A lightweight .NET library for querying JSON documents using JSONPath expressions with System.Text.Json. Inspired by and based on Newtonsoft.Json's JSONPath implementation.</Description>
