@@ -2,7 +2,7 @@
 
 A lightweight .NET library for querying JSON documents using JSONPath expressions with System.Text.Json.
 
-This implementation is inspired by and based on the JSONPath implementation in [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json), ported to work with System.Text.Json.
+This implementation is inspired by and based on the JSONPath implementation in [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json), ported to work with System.Text.Json with modern optimizations.
 
 ## Installation
 
