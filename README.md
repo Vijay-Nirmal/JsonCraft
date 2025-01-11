@@ -197,11 +197,11 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.2605)
 
 ### Duration Chart
 
-![Duration chart of the benchmark](./Results/duration-chart.png)
+![Duration chart of the benchmark](https://raw.githubusercontent.com/Vijay-Nirmal/JsonCraft/refs/heads/master/Results/duration-chart.png)
 
 ### Allocated Memory Chart
 
-![Allocated memory chart of the benchmark](./Results/allocated-memory-chart.png)
+![Allocated memory chart of the benchmark](https://raw.githubusercontent.com/Vijay-Nirmal/JsonCraft/refs/heads/master/Results/allocated-memory-chart.png)
 
 ## Supported JSONPath Syntax
 
