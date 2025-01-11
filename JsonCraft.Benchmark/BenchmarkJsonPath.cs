@@ -1,4 +1,4 @@
-﻿// #define BENCHMARK_ALL
+﻿#define BENCHMARK_ALL
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -11,7 +11,7 @@ using System.Text.Json.Nodes;
 namespace JsonCraft.Benchmark;
 
 [MemoryDiagnoser]
-[ShortRunJob]
+//[ShortRunJob]
 //[CPUUsageDiagnoser]
 //[DotNetObjectAllocDiagnoser]
 public class BenchmarkJsonPath
@@ -24,24 +24,24 @@ public class BenchmarkJsonPath
     private readonly Consumer _consumer = new Consumer();
 
     [Params(
-        //"$.store.book[0].title",
-        //"$.store.book[*].author",
+        "$.store.book[0].title",
+        "$.store.book[*].author",
         "$.store.book[?(@.price < 10)].title",
-        //"$.store.bicycle.color",
-        //"$.store.book[*]",                                    // all books
-        //"$.store..price",                                     // all prices using recursive descent
-        //"$..author",                                          // all authors using recursive descent
+        "$.store.bicycle.color",
+        "$.store.book[*]",                                    // all books
+        "$.store..price",                                     // all prices using recursive descent
+        "$..author",                                          // all authors using recursive descent
         "$.store.book[?(@.price > 10 && @.price < 20)]",     // filtered by price range
-        //"$.store.book[?(@.category == 'fiction')]",          // filtered by category
-        //"$.store.book[-1:]",                                 // last book
-        //"$.store.book[:2]",                                  // first two books
-        //"$.store.book[?(@.author =~ /.*Waugh/)]",            // regex match on author
-        //"$..book[0,1]",                                     // union of array indices
-        //"$..*",                                             // recursive descent all nodes
-        //"$..['bicycle','price']",                            // recursive descent specfic node with name match 
-        "$..[?(@.price < 10)]"                            // recursive descent specfic node with conditionally match 
-        //"$.store.book[?(@.author && @.title)]",            // existence check
-        //"$.store.*"                                       // wildcard child
+        "$.store.book[?(@.category == 'fiction')]",          // filtered by category
+        "$.store.book[-1:]",                                 // last book
+        "$.store.book[:2]",                                  // first two books
+        "$.store.book[?(@.author =~ /.*Waugh/)]",            // regex match on author
+        "$..book[0,1]",                                     // union of array indices
+        "$..*",                                             // recursive descent all nodes
+        "$..['bicycle','price']",                            // recursive descent specfic node with name match 
+        "$..[?(@.price < 10)]",                            // recursive descent specfic node with conditionally match 
+        "$.store.book[?(@.author && @.title)]",            // existence check
+        "$.store.*"                                       // wildcard child
     )]
     public string JsonPath { get; set; }
 
@@ -78,17 +78,17 @@ public class BenchmarkJsonPath
         _jsonNode = AsNode(_jsonDocument.RootElement);
     }
 
-    [Benchmark(Baseline = true, Description = "Newtonsoft.Json")]
-    public void Get_NewtonsoftJson()
-    {
-        var result = _newtonsoftJson.SelectTokens(JsonPath);
-        result.Consume(_consumer);
-    }
-
-    [Benchmark(Description = "JsonCraft.JsonPath")]
+    [Benchmark(Baseline = true, Description = "JsonCraft.JsonPath")]
     public void Get_JsonCraft()
     {
         var result = JsonCraft.JsonPath.JsonExtensions.SelectTokens(_jsonDocument.RootElement, JsonPath);
+        result.Consume(_consumer);
+    }
+
+    [Benchmark(Description = "Newtonsoft.Json")]
+    public void Get_NewtonsoftJson()
+    {
+        var result = _newtonsoftJson.SelectTokens(JsonPath);
         result.Consume(_consumer);
     }
 
@@ -113,13 +113,6 @@ public class BenchmarkJsonPath
         var path = Json.Path.JsonPath.Parse(JsonPath);
         var result = path.Evaluate(_jsonNode);
         result.Matches.Consume(_consumer);
-    }
-
-    [Benchmark(Description = "BlushingPenguin.JsonPath")]
-    public void Get_BenchmarkBlushingPenguinJsonPath()
-    {
-        var result = BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(_jsonDocument, JsonPath);
-        result.Consume(_consumer);
     }
 
     [Benchmark(Description = "Hyperbee.Json")]
