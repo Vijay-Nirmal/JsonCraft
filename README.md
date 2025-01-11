@@ -220,7 +220,7 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.2605)
 | `@` | Current object in filter | `[?(@.price > 10)]` |
 | `==`,`!=` | Equality operators | `[?(@.category == 'fiction')]` |
 | `>`,`>=`,`<`,`<=` | Comparison operators | `[?(@.price > 10)]` |
-| `&&`, `||` | Logical AND/OR | `[?(@.price > 10 && @.category == 'fiction')]` |
+| `&&`, `\|\|` | Logical AND/OR | `[?(@.price > 10 && @.category == 'fiction')]` |
 | `=~` | Regular expression match | `[?(@.author =~ /.*Waugh/)]` |
 
 ## API Reference
