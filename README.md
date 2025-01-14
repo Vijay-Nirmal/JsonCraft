@@ -1,8 +1,10 @@
 # JsonCraft.JsonPath
 
-A lightweight .NET library for querying JSON documents using JSONPath expressions with System.Text.Json.
+The fastest .NET library for querying JSON documents using JSONPath expressions with System.Text.Json. Based on our benchmarks, JsonCraft.JsonPath offers superior performance with lower memory allocation for most cases.
 
 This implementation is inspired by and based on the JSONPath implementation in [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json), ported to work with System.Text.Json with modern optimizations.
+
+> **Note**: Performance claims are based on the benchmarks shown below in this document. There are some cases other packages does better. Your actual results may vary depending on the specific use case and environment.
 
 ## Installation
 

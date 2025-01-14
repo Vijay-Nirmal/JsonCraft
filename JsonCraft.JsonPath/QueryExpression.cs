@@ -1,7 +1,5 @@
-﻿using System.Globalization;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace JsonCraft.JsonPath
@@ -135,59 +133,23 @@ namespace JsonCraft.JsonPath
                 switch (Operator)
                 {
                     case QueryOperator.RegexEquals:
-                        if (RegexEquals(leftResult, rightResult, settings))
-                        {
-                            return true;
-                        }
-                        break;
+                        return RegexEquals(leftResult, rightResult, settings);
                     case QueryOperator.Equals:
-                        if (EqualsWithStringCoercion(leftResult, rightResult))
-                        {
-                            return true;
-                        }
-                        break;
+                        return EqualsWithStringCoercion(leftResult, rightResult);
                     case QueryOperator.StrictEquals:
-                        if (EqualsWithStrictMatch(leftResult, rightResult))
-                        {
-                            return true;
-                        }
-                        break;
+                        return EqualsWithStrictMatch(leftResult, rightResult);
                     case QueryOperator.NotEquals:
-                        if (!EqualsWithStringCoercion(leftResult, rightResult))
-                        {
-                            return true;
-                        }
-                        break;
+                        return !EqualsWithStringCoercion(leftResult, rightResult);
                     case QueryOperator.StrictNotEquals:
-                        if (!EqualsWithStrictMatch(leftResult, rightResult))
-                        {
-                            return true;
-                        }
-                        break;
+                        return !EqualsWithStrictMatch(leftResult, rightResult);
                     case QueryOperator.GreaterThan:
-                        if (CompareTo(leftResult, rightResult) > 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(leftResult, rightResult) > 0;
                     case QueryOperator.GreaterThanOrEquals:
-                        if (CompareTo(leftResult, rightResult) >= 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(leftResult, rightResult) >= 0;
                     case QueryOperator.LessThan:
-                        if (CompareTo(leftResult, rightResult) < 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(leftResult, rightResult) < 0;
                     case QueryOperator.LessThanOrEquals:
-                        if (CompareTo(leftResult, rightResult) <= 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(leftResult, rightResult) <= 0;
                     case QueryOperator.Exists:
                         return true;
                 }
@@ -197,8 +159,6 @@ namespace JsonCraft.JsonPath
                 switch (Operator)
                 {
                     case QueryOperator.Exists:
-                    // you can only specify primitive types in a comparison
-                    // notequals will always be true
                     case QueryOperator.NotEquals:
                         return true;
                 }
@@ -232,7 +192,7 @@ namespace JsonCraft.JsonPath
                 return leftValue.GetBoolean().CompareTo(rightValue.GetBoolean());
             }
 
-            if(TryGetAsDouble(leftValue, out double leftNum) && TryGetAsDouble(rightValue, out double rightNum))
+            if (TryGetAsDouble(leftValue, out double leftNum) && TryGetAsDouble(rightValue, out double rightNum))
             {
                 return leftNum.CompareTo(rightNum);
             }
@@ -342,7 +302,7 @@ namespace JsonCraft.JsonPath
 
             return false; // For Object and Array
         }
-            
+
         private static bool IsBoolean(JsonElement v) => v.ValueKind == JsonValueKind.True || v.ValueKind == JsonValueKind.False;
         private static bool IsJsonContainer(JsonElement v) => v.ValueKind == JsonValueKind.Array || v.ValueKind == JsonValueKind.Object;
     }
