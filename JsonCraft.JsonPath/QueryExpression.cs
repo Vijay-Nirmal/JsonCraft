@@ -267,22 +267,20 @@ namespace JsonCraft.JsonPath
 
         internal static bool EqualsWithStrictMatch(JsonElement value, JsonElement queryValue)
         {
-            // Handle comparing an integer with a float
-            // e.g. Comparing 1 and 1.0
-            if (value.ValueKind == JsonValueKind.Number && queryValue.ValueKind == JsonValueKind.Number)
-            {
-                return value.GetDouble() == queryValue.GetDouble();
-            }
 
             if (IsBoolean(value) && IsBoolean(queryValue))
             {
                 return value.GetBoolean() == queryValue.GetBoolean();
             }
 
-            // we handle floats and integers the exact same way, so they are pseudo equivalent
             if (value.ValueKind != queryValue.ValueKind)
             {
                 return false;
+            }
+
+            if (value.ValueKind == JsonValueKind.Number)
+            {
+                return value.GetDouble() == queryValue.GetDouble();
             }
 
             if (value.ValueKind == JsonValueKind.String)

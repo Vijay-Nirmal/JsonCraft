@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Text.Json.Nodes;
 using System.Linq;
 using System.Text.Json;
+using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 {
@@ -36,13 +38,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Operator = @operator;
         }
 
-        // For unit tests
-        public bool IsMatch(JsonNode root, JsonNode? t)
-        {
-            return IsMatch(root, t, null);
-        }
-
-        public abstract bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings);
+        public abstract bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings = null);
     }
 
     internal class CompositeExpression : QueryExpression
@@ -54,7 +50,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Expressions = new List<QueryExpression>();
         }
 
-        public override bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings)
+        public override bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings = null)
         {
             switch (Operator)
             {
@@ -84,16 +80,16 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
     internal class BooleanQueryExpression : QueryExpression
     {
-        public readonly object? Left;
+        public readonly object Left;
         public readonly object? Right;
 
-        public BooleanQueryExpression(QueryOperator @operator, object? left, object? right) : base(@operator)
+        public BooleanQueryExpression(QueryOperator @operator, object left, object? right) : base(@operator)
         {
             Left = left;
             Right = right;
         }
 
-        public override bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings)
+        public override bool IsMatch(JsonNode root, JsonNode? t, JsonSelectSettings? settings = null)
         {
             if (Operator == QueryOperator.Exists)
             {
@@ -104,14 +100,17 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             {
                 foreach (var leftResult in JPath.Evaluate(leftPath, root, t, settings))
                 {
-                    return EvaluateMatch(root, t, settings, leftResult);
+                    if (EvaluateMatch(root, t, settings, leftResult))
+                    {
+                        return true;
+                    }
                 }
             }
             else if (Left is JsonNode left)
             {
                 return EvaluateMatch(root, t, settings, left);
             }
-            else
+            else if (Left is null)
             {
                 return EvaluateMatch(root, t, settings, null);
             }
@@ -122,9 +121,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             {
                 if (Right is List<PathFilter> right)
                 {
-                    IEnumerable<JsonNode?> rightResults = JPath.Evaluate(right, root, t, settings);
-
-                    foreach (var rightResult in rightResults)
+                    foreach (var rightResult in JPath.Evaluate(right, root, t, settings))
                     {
                         if (MatchTokens(leftResult, rightResult, settings))
                         {
@@ -136,7 +133,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 {
                     return MatchTokens(leftResult, rightNode, settings);
                 }
-                else
+                else if (Right is null)
                 {
                     return MatchTokens(leftResult, null, settings);
                 }
@@ -147,66 +144,30 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
         private bool MatchTokens(JsonNode? leftResult, JsonNode? rightResult, JsonSelectSettings? settings)
         {
-            if ((leftResult is JsonValue || leftResult is null) && (rightResult is JsonValue || rightResult is null))
+            if (leftResult is JsonValue or null && rightResult is JsonValue or null)
             {
-                var leftValue = leftResult is JsonValue ? (JsonValue)leftResult : null;
-                var rightValue = rightResult is JsonValue ? (JsonValue)rightResult : null;
+                var left = leftResult as JsonValue;
+                var right = rightResult as JsonValue;
                 switch (Operator)
                 {
                     case QueryOperator.RegexEquals:
-                        if (RegexEquals(leftValue, rightValue, settings))
-                        {
-                            return true;
-                        }
-                        break;
+                        return RegexEquals(left, right, settings);
                     case QueryOperator.Equals:
-                        if (EqualsWithStringCoercion(leftValue, rightValue))
-                        {
-                            return true;
-                        }
-                        break;
+                        return EqualsWithStringCoercion(left, right);
                     case QueryOperator.StrictEquals:
-                        if (EqualsWithStrictMatch(leftValue, rightValue))
-                        {
-                            return true;
-                        }
-                        break;
+                        return EqualsWithStrictMatch(left, right);
                     case QueryOperator.NotEquals:
-                        if (!EqualsWithStringCoercion(leftValue, rightValue))
-                        {
-                            return true;
-                        }
-                        break;
+                        return !EqualsWithStringCoercion(left, right);
                     case QueryOperator.StrictNotEquals:
-                        if (!EqualsWithStrictMatch(leftValue, rightValue))
-                        {
-                            return true;
-                        }
-                        break;
+                        return !EqualsWithStrictMatch(left, right);
                     case QueryOperator.GreaterThan:
-                        if (Compare(leftValue, rightValue) > 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(left, right) > 0;
                     case QueryOperator.GreaterThanOrEquals:
-                        if (Compare(leftValue, rightValue) >= 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(left, right) >= 0;
                     case QueryOperator.LessThan:
-                        if (Compare(leftValue, rightValue) < 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(left, right) < 0;
                     case QueryOperator.LessThanOrEquals:
-                        if (Compare(leftValue, rightValue) <= 0)
-                        {
-                            return true;
-                        }
-                        break;
+                        return CompareTo(left, right) <= 0;
                     case QueryOperator.Exists:
                         return true;
                 }
@@ -216,8 +177,6 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 switch (Operator)
                 {
                     case QueryOperator.Exists:
-                    // you can only specify primitive types in a comparison
-                    // notequals will always be true
                     case QueryOperator.NotEquals:
                         return true;
                 }
@@ -226,26 +185,64 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             return false;
         }
 
+        internal static int CompareTo(JsonValue? leftValue, JsonValue? rightValue)
+        {
+            if (leftValue?.GetValueKind() == rightValue?.GetValueKind())
+            {
+                if (leftValue is null)
+                {
+                    return 0;
+                }
+
+                switch (leftValue.GetValueKind())
+                {
+                    case JsonValueKind.False:
+                    case JsonValueKind.True:
+                    case JsonValueKind.Null:
+                    case JsonValueKind.Undefined:
+                        return 0;
+                    case JsonValueKind.String:
+                        return leftValue.GetValue<string>()!.CompareTo(rightValue!.GetValue<string>());
+                    case JsonValueKind.Number:
+                        return leftValue.GetValue<double>().CompareTo(rightValue!.GetValue<double>()); // Can't be null because if it was null then it would have returned above
+                    default:
+                        throw new InvalidOperationException($"Can compare only value types, but the current type is: {leftValue.GetValueKind()}");
+                }
+            }
+
+            if (IsBoolean(leftValue) && IsBoolean(rightValue))
+            {
+                return leftValue.GetValue<bool>().CompareTo(rightValue.GetValue<bool>());
+            }
+
+            if (TryGetAsDouble(leftValue, out double leftNum) && TryGetAsDouble(rightValue, out double rightNum))
+            {
+                return leftNum.CompareTo(rightNum);
+            }
+
+            if (leftValue is null || rightValue is null)
+            {
+                return 0;
+            }
+
+            return leftValue.GetValue<string>().CompareTo(rightValue.GetValue<string>());
+        }
+
         private static bool RegexEquals(JsonValue? input, JsonValue? pattern, JsonSelectSettings? settings)
         {
-            if (input is null || pattern is null)
+            if (input is null || pattern is null || input.GetValueKind() != JsonValueKind.String || pattern.GetValueKind() != JsonValueKind.String)
             {
                 return false;
             }
 
-            if (input.GetValueKind() != JsonValueKind.String || pattern.GetValueKind() != JsonValueKind.String)
-            {
-                return false;
-            }
-
-            var regexText = (string)pattern!;
+            string regexText = pattern.GetValue<string>();
             int patternOptionDelimiterIndex = regexText.LastIndexOf('/');
 
             string patternText = regexText.Substring(1, patternOptionDelimiterIndex - 1);
             string optionsText = regexText.Substring(patternOptionDelimiterIndex + 1);
 
             TimeSpan timeout = settings?.RegexMatchTimeout ?? Regex.InfiniteMatchTimeout;
-            return Regex.IsMatch((string)input!, patternText, GetRegexOptions(optionsText), timeout);
+            return Regex.IsMatch(input.GetValue<string>(), patternText, GetRegexOptions(optionsText), timeout);
 
             RegexOptions GetRegexOptions(string optionsText)
             {
@@ -276,7 +273,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
         internal static bool EqualsWithStringCoercion(JsonValue? value, JsonValue? queryValue)
         {
-            if (value is null && queryValue is null)
+            if (value is null && value is null)
             {
                 return true;
             }
@@ -286,16 +283,14 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 return false;
             }
 
-            if (JsonValue.DeepEquals(value, queryValue))
+            if (TryGetAsDouble(value, out double leftNum) && TryGetAsDouble(queryValue, out double rightNum))
             {
-                return true;
+                return leftNum == rightNum;
             }
 
-            // Handle comparing an integer with a float
-            // e.g. Comparing 1 and 1.0
-            if (value.GetValueKind() == JsonValueKind.Number && queryValue.GetValueKind() == JsonValueKind.Number)
+            if (IsBoolean(value) && IsBoolean(queryValue))
             {
-                return value.GetValue<double>() == queryValue.GetValue<double>();
+                return value.GetValue<bool>() == queryValue.GetValue<bool>();
             }
 
             if (queryValue.GetValueKind() != JsonValueKind.String)
@@ -303,16 +298,23 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 return false;
             }
 
-            string queryValueString = (string)queryValue!;
+            var queryValueText = queryValue.GetValue<string>();
 
-            var currentValueString = (string?)value;
-
-            return string.Equals(currentValueString, queryValueString, StringComparison.Ordinal);
+            switch (value.GetValueKind())
+            {
+                case JsonValueKind.String:
+                    return string.Equals(value.GetValue<string>(), queryValueText, StringComparison.Ordinal);
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return bool.TryParse(queryValueText, out var queryBool) && queryBool == value.GetValue<bool>();
+                default:
+                    return false;
+            }
         }
 
         internal static bool EqualsWithStrictMatch(JsonValue? value, JsonValue? queryValue)
         {
-            if (value is null && queryValue is null)
+            if (value is null && value is null)
             {
                 return true;
             }
@@ -322,78 +324,62 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 return false;
             }
 
-            if (value.GetValueKind() == queryValue.GetValueKind())
+            if (IsBoolean(value) && IsBoolean(queryValue))
             {
-                return JsonValue.DeepEquals(value, queryValue);
+                return value.GetValue<bool>() == queryValue.GetValue<bool>();
             }
 
-            // num/string comparison
-            if (TryGetNumberValue(value, out var leftNum) &&
-                TryGetNumberValue(queryValue, out var rightNum))
+            if (value.GetValueKind() != queryValue.GetValueKind())
             {
-                return leftNum == rightNum;
+                return false;
             }
 
-            return value.Equals(queryValue);
-        }
-
-        internal static int Compare(JsonValue? leftValue, JsonValue? rightValue)
-        {
-            if (leftValue is null && rightValue is null)
-            {
-                return 0;
-            }
-
-            if (leftValue is null)
-            {
-                return -1;
-            }
-
-            if (rightValue is null)
-            {
-                return 1;
-            }
-
-            if (leftValue.GetValueKind() == rightValue.GetValueKind())
-            {
-                switch (leftValue.GetValueKind())
-                {
-                    case JsonValueKind.False:
-                    case JsonValueKind.True:
-                    case JsonValueKind.Null:
-                    case JsonValueKind.Undefined:
-                        return 0;
-                    case JsonValueKind.String:
-                        return ((string?)leftValue)!.CompareTo(((string?)rightValue));
-                    case JsonValueKind.Number:
-                        return ((double)leftValue).CompareTo(((double)rightValue));
-                    default:
-                        throw new InvalidOperationException($"Unknown json value kind: {leftValue.GetValueKind()}");
-                }
-            }
-
-            // num/string comparison
-            if (TryGetNumberValue(leftValue, out var leftNum) &&
-                TryGetNumberValue(rightValue, out var rightNum))
-            {
-                return leftNum.CompareTo(rightNum);
-            }
-
-            return -1;
-        }
-
-        internal static bool TryGetNumberValue(JsonValue value, out double num)
-        {
             if (value.GetValueKind() == JsonValueKind.Number)
             {
-                num = ((double)value);
-                return true;
+                return value.GetValue<double>() == queryValue.GetValue<double>();
             }
-            if (value.GetValueKind() == JsonValueKind.String &&
-                Double.TryParse(((string?)value), out num))
+
+            if (value.GetValueKind() == JsonValueKind.String)
+            {
+                return string.Equals(value.GetValue<string>(), queryValue.GetValue<string>(), StringComparison.Ordinal);
+            }
+
+            if (value.GetValueKind() == JsonValueKind.Null && queryValue.GetValueKind() == JsonValueKind.Null)
             {
                 return true;
             }
+
+            if (value.GetValueKind() == JsonValueKind.Undefined && queryValue.GetValueKind() == JsonValueKind.Undefined)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsBoolean([NotNullWhen(true)] JsonNode? v) => v is not null && (v.GetValueKind() == JsonValueKind.False || v.GetValueKind() == JsonValueKind.True);
+
+        private static bool IsJsonContainer([NotNullWhen(true)] JsonNode? v) => v is JsonArray || v is JsonObject;
+
+        private static bool TryGetAsDouble(JsonValue? value, out double num)
+        {
+            if (value is null)
+            {
+                num = default;
+                return false;
+            }
+
+            if (value.GetValueKind() == JsonValueKind.Number)
+            {
+                num = value.GetValue<double>();
+                return true;
+            }
+
+            if (value.GetValueKind() == JsonValueKind.String && double.TryParse(value.GetValue<string>(), out num))
+            {
+                return true;
+            }
+
             num = default;
             return false;
         }

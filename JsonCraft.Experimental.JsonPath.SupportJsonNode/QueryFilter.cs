@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
@@ -13,13 +11,38 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Expression = expression;
         }
 
-        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, JsonNode? current, JsonSelectSettings? settings)
         {
-            foreach (JsonNode t in current)
+            if (current is JsonArray arr)
             {
-                if (t is JsonArray array)
+                foreach (var v in arr)
                 {
-                    foreach (var v in array)
+                    if (Expression.IsMatch(root, v, settings))
+                    {
+                        yield return v;
+                    }
+                }
+            }
+            else if (current is JsonObject obj)
+            {
+                foreach (var v in (obj as IDictionary<string, JsonNode>).Values)
+                {
+                    if (Expression.IsMatch(root, v, settings))
+                    {
+                        yield return v;
+                    }
+                }
+            }
+        }
+
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode?> current, JsonSelectSettings? settings)
+        {
+            foreach (var item in current)
+            {
+                // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory.
+                if (item is JsonArray arr)
+                {
+                    foreach (var v in arr)
                     {
                         if (Expression.IsMatch(root, v, settings))
                         {
@@ -27,9 +50,9 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                         }
                     }
                 }
-                else if (t is JsonArray obj)
+                else if (item is JsonObject obj)
                 {
-                    foreach (var v in obj)
+                    foreach (var v in (obj as IDictionary<string, JsonNode>).Values)
                     {
                         if (Expression.IsMatch(root, v, settings))
                         {

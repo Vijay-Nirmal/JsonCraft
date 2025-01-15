@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
@@ -11,9 +10,14 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
         {
         }
 
-        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, JsonNode? current, JsonSelectSettings? settings)
         {
-            return new[] { root };
+            return [root];
+        }
+
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode?> current, JsonSelectSettings? settings)
+        {
+            return [root];
         }
     }
 }

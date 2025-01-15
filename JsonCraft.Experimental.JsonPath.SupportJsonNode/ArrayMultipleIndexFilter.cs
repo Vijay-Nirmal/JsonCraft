@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
@@ -12,15 +11,27 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Indexes = indexes;
         }
 
-        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, JsonNode? current, JsonSelectSettings? settings)
         {
-            foreach (JsonNode t in current)
+            foreach (int i in Indexes)
             {
+                if (TryGetTokenIndex(current, i, settings?.ErrorWhenNoMatch ?? false, out var jsonNode))
+                {
+                    yield return jsonNode;
+                }
+            }
+        }
+
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode?> current, JsonSelectSettings? settings)
+        {
+            foreach (var item in current)
+            {
+                // Note: Not calling ExecuteFilter with yield return because that approach is slower and uses more memory. So we have duplicated code here.
                 foreach (int i in Indexes)
                 {
-                    if (TryGetTokenIndex(t, settings, i, out var v))
+                    if (TryGetTokenIndex(item, i, settings?.ErrorWhenNoMatch ?? false, out var jsonNode))
                     {
-                        yield return v;
+                        yield return jsonNode;
                     }
                 }
             }

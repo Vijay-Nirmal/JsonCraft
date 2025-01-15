@@ -1,5 +1,5 @@
-using System;
-using System.Collections.Generic;
+using System.Collections;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
@@ -13,48 +13,61 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Expression = expression;
         }
 
-        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode> current, JsonSelectSettings? settings)
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, JsonNode? current, JsonSelectSettings? settings)
         {
-            foreach (JsonNode t in current)
+            if (Expression.IsMatch(root, current, settings))
             {
-                if (t is JsonObject obj)
-                {
-                    if (Expression.IsMatch(root, obj, settings))
-                    {
-                        yield return obj;
-                    }
+                yield return current;
+            }
 
-                    foreach (var d in obj)
+            IEnumerator<JsonNode?>? enumerator = null;
+            if (current is JsonArray arr)
+            {
+                enumerator = arr.GetEnumerator();
+            }
+            else if (current is JsonObject obj)
+            {
+                enumerator = (obj as IDictionary<string, JsonNode>).Values.GetEnumerator();
+            }
+
+            if (enumerator is not null)
+            {
+                var stack = new Stack<IEnumerator<JsonNode?>>();
+                while (true)
+                {
+                    if (enumerator.MoveNext())
                     {
-                        if (Expression.IsMatch(root, d.Value, settings))
+                        var jsonNode = enumerator.Current;
+                        if (Expression.IsMatch(root, jsonNode, settings))
                         {
-                            yield return d.Value;
+                            yield return jsonNode;
+                        }
+                        stack.Push(enumerator);
+
+                        if (jsonNode is JsonArray innerArr)
+                        {
+                            enumerator = innerArr.GetEnumerator();
+                        }
+                        else if (jsonNode is JsonObject innerOobj)
+                        {
+                            enumerator = (innerOobj as IDictionary<string, JsonNode>).Values.GetEnumerator();
                         }
                     }
-                }
-                else if (t is JsonArray arr)
-                {
-                    if (Expression.IsMatch(root, arr, settings))
+                    else if (stack.Count > 0)
                     {
-                        yield return arr;
+                        enumerator = stack.Pop();
                     }
-
-                    foreach (var d in arr)
+                    else
                     {
-                        if (Expression.IsMatch(root, d, settings))
-                        {
-                            yield return d;
-                        }
-                    }
-                }
-                else
-                {
-                    if (Expression.IsMatch(root, t, settings))
-                    {
-                        yield return t;
+                        yield break;
                     }
                 }
             }
+        }
+
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode?> current, JsonSelectSettings? settings)
+        {
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

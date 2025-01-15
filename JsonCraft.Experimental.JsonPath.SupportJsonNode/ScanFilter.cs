@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
@@ -11,54 +12,77 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             Name = name;
         }
 
-        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode> current, JsonSelectSettings? settings)
+        // Inspired by https://stackoverflow.com/a/30441479/7331395
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, JsonNode? current, JsonSelectSettings? settings)
         {
-            foreach (JsonNode c in current)
+            if (Name is null)
             {
-                if (Name == null)
-                {
-                    yield return c;
-                }
+                yield return current;
+            }
 
-                foreach (var result in ExecuteFilterSingle(c))
+            IEnumerator? enumerator = null;
+            if (current is JsonArray arr)
+            {
+                enumerator = arr.GetEnumerator();
+            }
+            else if (current is JsonObject obj)
+            {
+                enumerator = obj.GetEnumerator();
+            }
+
+            if (enumerator is not null)
+            {
+                var stack = new Stack<IEnumerator>();
+                while (true)
                 {
-                    yield return result;
+                    if (enumerator.MoveNext())
+                    {
+                        JsonNode? jsonNode = default;
+                        if (enumerator is IEnumerator<JsonNode?> arrayEnumerator)
+                        {
+                            var element = arrayEnumerator.Current;
+                            jsonNode = element;
+                            if (Name is null)
+                            {
+                                yield return element;
+                            }
+                            stack.Push(enumerator);
+                        }
+                        else if (enumerator is IEnumerator<KeyValuePair<string, JsonNode?>> objectEnumerator)
+                        {
+                            var element = objectEnumerator.Current;
+                            jsonNode = element.Value;
+                            if (Name is null || element.Key == Name)
+                            {
+                                yield return element.Value;
+                            }
+                            stack.Push(enumerator);
+                        }
+
+                        if (jsonNode is JsonArray innerArr)
+                        {
+                            enumerator = innerArr.GetEnumerator();
+                        }
+                        else if (jsonNode is JsonObject innerOobj)
+                        {
+                            enumerator = innerOobj.GetEnumerator();
+                        }
+                    }
+                    else if (stack.Count > 0)
+                    {
+                        enumerator = stack.Pop();
+                    }
+                    else
+                    {
+                        yield break;
+                    }
                 }
             }
         }
 
-        private IEnumerable<JsonNode?> ExecuteFilterSingle(JsonNode? current)
+        public override IEnumerable<JsonNode?> ExecuteFilter(JsonNode root, IEnumerable<JsonNode?> current, JsonSelectSettings? settings)
         {
-            if (current is JsonArray currArr)
-            {
-                foreach (var item in currArr)
-                {
-                    if (Name == null)
-                    {
-                        yield return item;
-                    }
-
-                    foreach (var result in ExecuteFilterSingle(item))
-                    {
-                        yield return result;
-                    }
-                }
-            }
-            else if (current is JsonObject currObj)
-            {
-                foreach (var property in currObj)
-                {
-                    if (Name == property.Key || Name == null)
-                    {
-                        yield return property.Value;
-                    }
-
-                    foreach (var result in ExecuteFilterSingle(property.Value))
-                    {
-                        yield return result;
-                    }
-                }
-            }
+            return current.SelectMany(x => ExecuteFilter(root, x, settings));
         }
     }
 }

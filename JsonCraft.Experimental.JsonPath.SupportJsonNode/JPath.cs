@@ -5,17 +5,32 @@ using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 {
-    internal class JPath
+    /// <summary>
+    /// Represents a JSON Path expression.
+    /// </summary>
+    public class JPath
     {
-        private static readonly char[] FloatCharacters = new[] {'.', 'E', 'e'};
-        private static JsonValue TrueJsonValue = JsonValue.Create(true);
-        private static JsonValue FalseJsonValue = JsonValue.Create(false);
+        private static readonly char[] FloatCharacters = new[] { '.', 'E', 'e' };
+        private static readonly JsonValue TrueJsonValue = JsonValue.Create(true);
+        private static readonly JsonValue FalseJsonValue = JsonValue.Create(false);
 
         private readonly string _expression;
+
+        /// <summary>
+        /// Gets the list of path filters.
+        /// </summary>
+        /// <value>
+        /// A list of <see cref="PathFilter"/> objects that represent the filters in the JSON Path expression.
+        /// </value>
         public List<PathFilter> Filters { get; }
 
         private int _currentIndex;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JPath"/> class with the specified expression.
+        /// </summary>
+        /// <param name="expression">The JSON Path expression.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the expression is null.</exception>
         public JPath(string expression)
         {
             ArgumentNullException.ThrowIfNull(expression);
@@ -155,6 +170,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
             if (_currentIndex > currentPartStartIndex)
             {
+                // TODO: Check performance of using AsSpan and TrimEnd then convert to string for the critical path
                 string? member = _expression.Substring(currentPartStartIndex, _currentIndex - currentPartStartIndex).TrimEnd();
                 if (member == "*")
                 {
@@ -236,8 +252,8 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                             throw new JsonException("Array index expected.");
                         }
 
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         indexes.Add(index);
                         return new ArrayMultipleIndexFilter(indexes);
@@ -246,8 +262,8 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                     {
                         if (length > 0)
                         {
-                            string indexer = _expression.Substring(start, length);
-                            int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                            var indexer = _expression.AsSpan(start, length);
+                            int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                             if (colonCount == 1)
                             {
@@ -268,8 +284,8 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                             throw new JsonException("Array index expected.");
                         }
 
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         return new ArrayIndexFilter { Index = index };
                     }
@@ -288,8 +304,8 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                         indexes = new List<int>();
                     }
 
-                    string indexer = _expression.Substring(start, length);
-                    indexes.Add(Convert.ToInt32(indexer, CultureInfo.InvariantCulture));
+                    var indexer = _expression.AsSpan(start, length);
+                    indexes.Add(int.Parse(indexer, CultureInfo.InvariantCulture));
 
                     _currentIndex++;
 
@@ -317,8 +333,8 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
                     if (length > 0)
                     {
-                        string indexer = _expression.Substring(start, length);
-                        int index = Convert.ToInt32(indexer, CultureInfo.InvariantCulture);
+                        var indexer = _expression.AsSpan(start, length);
+                        int index = int.Parse(indexer, CultureInfo.InvariantCulture);
 
                         if (colonCount == 0)
                         {
@@ -447,7 +463,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                 EatWhitespace();
                 EnsureLength("Path ended with open query.");
 
-                return expressionPath!;
+                return expressionPath;
             }
 
             if (TryParseValue(out var value))
@@ -558,25 +574,25 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             }
             else if (char.IsDigit(currentChar) || currentChar == '-')
             {
-                int start = _currentIndex;
+                var start = _currentIndex;
                 _currentIndex++;
                 while (_currentIndex < _expression.Length)
                 {
                     currentChar = _expression[_currentIndex];
                     if (currentChar == ' ' || currentChar == ')')
                     {
-                        ReadOnlySpan<char> numberSpan = _expression.AsSpan(start, _currentIndex - start);
+                        var numberText = _expression.AsSpan(start, _currentIndex - start);
 
-                        if (numberSpan.IndexOfAny(FloatCharacters) != -1)
+                        if (numberText.IndexOfAny(FloatCharacters) != -1)
                         {
-                            bool result = double.TryParse(numberSpan, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d);
-                            value = result ? TrueJsonValue : FalseJsonValue;
+                            bool result = double.TryParse(numberText, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d);
+                            value = JsonValue.Create(d);
                             return result;
                         }
                         else
                         {
-                            bool result = long.TryParse(numberSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l);
-                            value = result ? TrueJsonValue : FalseJsonValue;
+                            bool result = long.TryParse(numberText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l);
+                            value = JsonValue.Create(l);
                             return result;
                         }
                     }
@@ -847,20 +863,28 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             }
         }
 
-        internal IEnumerable<JsonNode?> Evaluate(JsonNode root, JsonNode t, JsonSelectSettings? settings)
+        internal IEnumerable<JsonNode?> Evaluate(JsonNode root, JsonNode? t, JsonSelectSettings? settings)
         {
             return Evaluate(Filters, root, t, settings);
         }
 
-        internal static IEnumerable<JsonNode?> Evaluate(List<PathFilter> filters, JsonNode root, JsonNode t, JsonSelectSettings? settings)
+        internal static IEnumerable<JsonNode?> Evaluate(List<PathFilter> filters, JsonNode root, JsonNode? t, JsonSelectSettings? settings)
         {
-            IEnumerable<JsonNode?> current = new[] { t };
-            foreach (PathFilter filter in filters)
+            if (filters.Count >= 1)
             {
-                current = filter.ExecuteFilter(root, current, settings);
-            }
+                var firstFilter = filters[0];
+                var current = firstFilter.ExecuteFilter(root, t, settings);
 
-            return current;
+                for (int i = 1; i < filters.Count; i++)
+                {
+                    current = filters[i].ExecuteFilter(root, current, settings);
+                }
+                return current;
+            }
+            else
+            {
+                return [t];
+            }
         }
     }
 }
