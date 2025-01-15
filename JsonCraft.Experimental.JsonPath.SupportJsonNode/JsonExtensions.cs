@@ -1,55 +1,69 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 {
     public static class JsonExtensions
     {
-        public static JsonNode? SelectToken(this JsonNode jsonNode, string path, JsonSelectSettings? settings = null)
+        public static bool TrySelectElement(this JsonNode jsonNode, string path, JsonSelectSettings? settings, out JsonNode? resultJsonNode)
         {
             JPath p = new JPath(path);
 
-            JsonNode? token = null;
+            resultJsonNode = null;
+            var isFirst = false;
             foreach (var t in p.Evaluate(jsonNode, jsonNode, settings))
             {
-                if (token != null)
+                if (!isFirst)
                 {
-                    throw new JsonException("Path returned multiple tokens.");
+                    return false;
                 }
 
-                token = t;
+                resultJsonNode = t;
+                isFirst = true;
             }
 
-            return token;
+            return true;
         }
 
-        public static IEnumerable<JsonNode?> SelectTokens(this JsonNode jsonNode, string path, JsonSelectSettings? settings = null)
+        public static bool TrySelectElement(this JsonNode jsonNode, string path, out JsonNode? resultJsonNode)
+        {
+            return jsonNode.TrySelectElement(path, null, out resultJsonNode);
+        }
+
+        public static IEnumerable<JsonNode?> SelectElements(this JsonNode jsonNode, string path, JsonSelectSettings? settings = null)
         {
             JPath p = new JPath(path);
             return p.Evaluate(jsonNode, jsonNode, settings);
         }
 
-        public static JsonElement SelectToken(this JsonElement document, string path, JsonSelectSettings? settings = null)
+        public static JsonElement? SelectElement(this JsonElement document, string path, JsonSelectSettings? settings = null)
         {
             var documentNode = document.AsNode() ?? throw new ArgumentException("Argument can't be converted into JsonNode", nameof(document));
-            return SelectToken(documentNode, path, settings).ToJsonDocument().RootElement;
+            return documentNode.TrySelectElement(path, settings, out var jsonNode) ? jsonNode.ToJsonDocument().RootElement : null;
         }
 
-        public static IEnumerable<JsonElement> SelectTokens(this JsonElement document, string path, JsonSelectSettings? settings = null)
+        public static IEnumerable<JsonElement> SelectElements(this JsonElement document, string path, JsonSelectSettings? settings = null)
         {
             var documentNode = document.AsNode() ?? throw new ArgumentException("Argument can't be converted into JsonNode", nameof(document));
-            return SelectTokens(documentNode, path, settings).Select(x => x.ToJsonDocument().RootElement);
+            return SelectElements(documentNode, path, settings).Select(x => x.ToJsonDocument().RootElement);
         }
 
-        public static JsonDocument SelectToken(this JsonDocument document, string path, JsonSelectSettings? settings = null)
+        [OverloadResolutionPriority(999)]
+        public static JsonElement? SelectElement(this JsonDocument document, string path, JsonSelectSettings? settings = null)
         {
             var documentNode = document.RootElement.AsNode() ?? throw new ArgumentException("Argument can't be converted into JsonNode", nameof(document));
-            return document.RootElement.SelectToken(path, settings).ToJsonDocument();
+            return documentNode.TrySelectElement(path, settings, out var jsonNode) ? jsonNode.ToJsonDocument().RootElement : null;
         }
 
-        public static IEnumerable<JsonDocument> SelectTokens(this JsonDocument document, string path, JsonSelectSettings? settings = null)
+        public static IEnumerable<JsonElement> SelectElements(this JsonDocument document, string path, JsonSelectSettings? settings = null)
         {
-            return document.RootElement.SelectTokens(path, settings).Select(x => x.ToJsonDocument());
+            return document.RootElement.SelectElements(path, settings);
+        }
+
+        public static JsonElement? SelectElement(this JsonDocument document, string path, bool errorWhenNoMatch = false)
+        {
+            return document.RootElement.SelectElement(path, new JsonSelectSettings { ErrorWhenNoMatch = errorWhenNoMatch });
         }
 
         public static JsonNode? AsNode(this JsonElement element)
