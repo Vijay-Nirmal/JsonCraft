@@ -11,9 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Tests", "JsonCraf
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Experimental", "Experimental", "{5CE1E458-70BE-47A3-A6D0-B91E49BC1867}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Experimental.JsonPath.SupportJsonNode", "JsonCraft.Experimental.JsonPath.SupportJsonNode\JsonCraft.Experimental.JsonPath.SupportJsonNode.csproj", "{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Experimental.JsonPath.SupportJsonNode", "Experimental\JsonCraft.Experimental.JsonPath.SupportJsonNode\JsonCraft.Experimental.JsonPath.SupportJsonNode.csproj", "{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Experimental.Tests", "Experimental\JsonCraft.Experimental.Tests\JsonCraft.Experimental.Tests.csproj", "{2D36374E-FBCF-47AE-9E48-970CC644B60D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonCraft.Experimental.Benchmark", "Experimental\JsonCraft.Experimental.Benchmark\JsonCraft.Experimental.Benchmark.csproj", "{9522A60D-9BFB-40DB-9396-AEC21A1B562A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{2D36374E-FBCF-47AE-9E48-970CC644B60D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D36374E-FBCF-47AE-9E48-970CC644B60D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D36374E-FBCF-47AE-9E48-970CC644B60D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9522A60D-9BFB-40DB-9396-AEC21A1B562A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9522A60D-9BFB-40DB-9396-AEC21A1B562A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9522A60D-9BFB-40DB-9396-AEC21A1B562A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9522A60D-9BFB-40DB-9396-AEC21A1B562A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +54,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A4055C2D-BE8B-4D76-8A8D-0C9391CFA0BA} = {5CE1E458-70BE-47A3-A6D0-B91E49BC1867}
 		{2D36374E-FBCF-47AE-9E48-970CC644B60D} = {5CE1E458-70BE-47A3-A6D0-B91E49BC1867}
+		{9522A60D-9BFB-40DB-9396-AEC21A1B562A} = {5CE1E458-70BE-47A3-A6D0-B91E49BC1867}
 	EndGlobalSection
 EndGlobal

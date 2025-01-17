@@ -12,7 +12,7 @@ using System.Text.Json.Nodes;
 namespace JsonCraft.Benchmark;
 
 [MemoryDiagnoser]
-//[ShortRunJob]
+[ShortRunJob]
 //[CPUUsageDiagnoser]
 //[DotNetObjectAllocDiagnoser]
 public class BenchmarkJsonPath
@@ -86,6 +86,13 @@ public class BenchmarkJsonPath
         result.Consume(_consumer);
     }
 
+    [Benchmark(Description = "JsonCraft.Experimental.JsonPath.SupportJsonNode")]
+    public void Get_JsonCraft_JsonNode()
+    {
+        var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectElements(_jsonDocument.RootElement, JsonPath);
+        result.Consume(_consumer);
+    }
+
     [Benchmark(Description = "Newtonsoft.Json")]
     public void Get_NewtonsoftJson()
     {
@@ -93,19 +100,7 @@ public class BenchmarkJsonPath
         result.Consume(_consumer);
     }
 
-    //[Benchmark(Description = "JsonCraft.Experimental.JsonPath.SupportJsonNode")]
-    //public void Get_JsonCraft_JsonNode()
-    //{
-    //    var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectTokens(_jsonDocument.RootElement, JsonPath);
-    //    result.Consume(_consumer);
-    //}
 
-    [Benchmark(Description = "BlushingPenguin.JsonPath")]
-    public void Get_BenchmarkBlushingPenguinJsonPath()
-    {
-        var result = BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(_jsonDocument, JsonPath);
-        result.Consume(_consumer);
-    }
 
 #if BENCHMARK_ALL
     [Benchmark(Description = "JsonPath.Net (json-everything)")]
@@ -114,20 +109,6 @@ public class BenchmarkJsonPath
         var path = Json.Path.JsonPath.Parse(JsonPath);
         var result = path.Evaluate(_jsonNode);
         result.Matches.Consume(_consumer);
-    }
-
-    [Benchmark(Description = "Hyperbee.Json")]
-    public void Get_HyperbeeJson()
-    {
-        var resut = Hyperbee.Json.Path.JsonPath<JsonElement>.Select(_jsonDocument.RootElement, JsonPath);
-        resut.Consume(_consumer);
-    }
-
-    [Benchmark(Description = "JsonCons.JsonPath")]
-    public void Get_JsonConsJsonPath()
-    {
-        var result = JsonCons.JsonPath.JsonSelector.Select(_jsonDocument.RootElement, JsonPath);
-        result.Consume(_consumer);
     }
 #endif
 
