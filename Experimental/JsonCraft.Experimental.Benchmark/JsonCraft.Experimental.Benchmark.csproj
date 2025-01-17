@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JsonCraft.Experimental.JsonPath.SupportJsonNode\JsonCraft.Experimental.JsonPath.SupportJsonNode.csproj" />
     <ProjectReference Include="..\..\JsonCraft.JsonPath\JsonCraft.JsonPath.csproj" />
+    <ProjectReference Include="..\JsonCraft.Experimental.JsonPath.SupportJsonNode\JsonCraft.Experimental.JsonPath.SupportJsonNode.csproj" />
   </ItemGroup>
 
 </Project>

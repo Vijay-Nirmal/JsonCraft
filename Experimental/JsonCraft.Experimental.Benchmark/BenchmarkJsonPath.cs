@@ -15,6 +15,7 @@ namespace JsonCraft.Benchmark;
 [ShortRunJob]
 //[CPUUsageDiagnoser]
 //[DotNetObjectAllocDiagnoser]
+//[DotNetObjectAllocJobConfiguration]
 public class BenchmarkJsonPath
 {
     private string _jsonString;
@@ -89,16 +90,16 @@ public class BenchmarkJsonPath
     [Benchmark(Description = "JsonCraft.Experimental.JsonPath.SupportJsonNode")]
     public void Get_JsonCraft_JsonNode()
     {
-        var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectElements(_jsonDocument.RootElement, JsonPath);
+        var result = JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectElements(_jsonNode, JsonPath);
         result.Consume(_consumer);
     }
 
-    [Benchmark(Description = "Newtonsoft.Json")]
-    public void Get_NewtonsoftJson()
-    {
-        var result = _newtonsoftJson.SelectTokens(JsonPath);
-        result.Consume(_consumer);
-    }
+    //[Benchmark(Description = "Newtonsoft.Json")]
+    //public void Get_NewtonsoftJson()
+    //{
+    //    var result = _newtonsoftJson.SelectTokens(JsonPath);
+    //    result.Consume(_consumer);
+    //}
 
 
 
