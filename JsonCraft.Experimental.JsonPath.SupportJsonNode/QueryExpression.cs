@@ -187,7 +187,17 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
         internal static int CompareTo(JsonValue? leftValue, JsonValue? rightValue)
         {
-            if (leftValue?.GetValueKind() == rightValue?.GetValueKind())
+            if (leftValue is null)
+            {
+                return rightValue is null ? 0 : -1;
+            }
+
+            if (rightValue is null)
+            {
+                return 1;
+            }
+
+            if (leftValue.GetValueKind() == rightValue.GetValueKind())
             {
                 if (leftValue is null)
                 {
@@ -204,7 +214,14 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
                     case JsonValueKind.String:
                         return leftValue.GetValue<string>()!.CompareTo(rightValue!.GetValue<string>());
                     case JsonValueKind.Number:
-                        return leftValue.GetValue<double>().CompareTo(rightValue!.GetValue<double>()); // Can't be null because if it was null then it would have returned above
+                        if (leftValue.TryGetValue<long>(out var left))
+                        {
+                            return rightValue.TryGetValue<long>(out var right) ? left.CompareTo(right) : left.CompareTo((long)rightValue.GetValue<double>());
+                        }
+                        else
+                        {
+                            return rightValue.TryGetValue<long>(out var right) ? ((long)leftValue.GetValue<double>()).CompareTo(right) : leftValue.GetValue<double>().CompareTo(rightValue.GetValue<double>());
+                        }
                     default:
                         throw new InvalidOperationException($"Can compare only value types, but the current type is: {leftValue.GetValueKind()}");
                 }
@@ -314,12 +331,12 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
         internal static bool EqualsWithStrictMatch(JsonValue? value, JsonValue? queryValue)
         {
-            if (value is null && value is null)
+            if (value is null)
             {
-                return true;
+                return queryValue is null;
             }
 
-            if (value is null || queryValue is null)
+            if (queryValue is null)
             {
                 return false;
             }
@@ -336,7 +353,14 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
             if (value.GetValueKind() == JsonValueKind.Number)
             {
-                return value.GetValue<double>() == queryValue.GetValue<double>();
+                if (value.TryGetValue<double>(out var valueNum))
+                {
+                    return queryValue.TryGetValue<double>(out var queryNum) ? valueNum == queryNum : valueNum == queryValue.GetValue<long>();
+                }
+                else
+                {
+                    return queryValue.TryGetValue<double>(out var queryNum) ? value.GetValue<long>() == queryNum : value.GetValue<long>() == queryValue.GetValue<long>();
+                }
             }
 
             if (value.GetValueKind() == JsonValueKind.String)
@@ -359,8 +383,6 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
         private static bool IsBoolean([NotNullWhen(true)] JsonNode? v) => v is not null && (v.GetValueKind() == JsonValueKind.False || v.GetValueKind() == JsonValueKind.True);
 
-        private static bool IsJsonContainer([NotNullWhen(true)] JsonNode? v) => v is JsonArray || v is JsonObject;
-
         private static bool TryGetAsDouble(JsonValue? value, out double num)
         {
             if (value is null)
@@ -371,7 +393,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
             if (value.GetValueKind() == JsonValueKind.Number)
             {
-                num = value.GetValue<double>();
+                num = value.TryGetValue<double>(out var valueNum) ? valueNum : value.GetValue<long>();
                 return true;
             }
 

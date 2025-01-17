@@ -11,19 +11,20 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
             JPath p = new JPath(path);
 
             resultJsonNode = null;
-            var isFirst = false;
+            var count = 0;
             foreach (var t in p.Evaluate(jsonNode, jsonNode, settings))
             {
-                if (!isFirst)
+                count++;
+
+                if (count != 1)
                 {
-                    return false;
+                    throw new JsonException("Path returned multiple elements.");
                 }
 
                 resultJsonNode = t;
-                isFirst = true;
             }
 
-            return true;
+            return count == 0 ? false : true;
         }
 
         public static bool TrySelectElement(this JsonNode jsonNode, string path, out JsonNode? resultJsonNode)

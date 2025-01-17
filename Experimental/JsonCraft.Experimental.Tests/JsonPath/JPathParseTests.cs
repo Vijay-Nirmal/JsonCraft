@@ -1,5 +1,6 @@
 using JsonCraft.Experimental.JsonPath.SupportJsonNode;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace JsonCraft.Experimental.Tests.JsonPath
 {
@@ -12,8 +13,8 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             JPath path = new JPath("[?(1 > 2)]");
             Assert.AreEqual(1, path.Filters.Count);
             BooleanQueryExpression booleanExpression = (BooleanQueryExpression)((QueryFilter)path.Filters[0]).Expression;
-            Assert.AreEqual(1, ((JsonElement)booleanExpression.Left).GetInt32());
-            Assert.AreEqual(2, ((JsonElement)booleanExpression.Right).GetInt32());
+            Assert.AreEqual(1, ((JsonValue)booleanExpression.Left).GetValue<long>());
+            Assert.AreEqual(2, ((JsonValue)booleanExpression.Right).GetValue<long>());
             Assert.AreEqual(QueryOperator.GreaterThan, booleanExpression.Operator);
         }
 
@@ -249,7 +250,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual("hi", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual("hi", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -260,7 +261,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual("h'i", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual("h'i", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -271,7 +272,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual("h\\i", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual("h\\i", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -282,7 +283,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.RegexEquals, expressions.Operator);
-            Assert.AreEqual("/hi/i", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual("/hi/i", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -293,7 +294,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.RegexEquals, expressions.Operator);
-            Assert.AreEqual("/^.*Sword.*$/", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual("/^.*Sword.*$/", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -304,7 +305,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.RegexEquals, expressions.Operator);
-            Assert.AreEqual(@"/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g", ((JsonElement)expressions.Right).GetString());
+            Assert.AreEqual(@"/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g", ((JsonValue)expressions.Right).GetValue<string>());
         }
 
         [TestMethod]
@@ -327,7 +328,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual(false, ((JsonElement)expressions.Right).GetBoolean());
+            Assert.AreEqual(false, ((JsonValue)expressions.Right).GetValue<bool>());
         }
 
         [TestMethod]
@@ -338,7 +339,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual(true, ((JsonElement)expressions.Right).GetBoolean());
+            Assert.AreEqual(true, ((JsonValue)expressions.Right).GetValue<bool>());
         }
 
         [TestMethod]
@@ -349,7 +350,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             Assert.AreEqual("Blah", ((FieldFilter)path.Filters[0]).Name);
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[1]).Expression;
             Assert.AreEqual(QueryOperator.Equals, expressions.Operator);
-            Assert.AreEqual(JsonValueKind.Null, ((JsonElement)expressions.Right).ValueKind);
+            Assert.IsNull(expressions.Right);
         }
 
         [TestMethod]
@@ -414,7 +415,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
         {
             JPath path = new JPath("[?(@.name>=12)]");
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[0]).Expression;
-            Assert.AreEqual(12, ((JsonElement)expressions.Right).GetInt32());
+            Assert.AreEqual(12, ((JsonValue)expressions.Right).GetValue<long>());
         }
 
         [TestMethod]
@@ -422,7 +423,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
         {
             JPath path = new JPath("[?(@.name>=-12)]");
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[0]).Expression;
-            Assert.AreEqual(-12, ((JsonElement)expressions.Right).GetInt32());
+            Assert.AreEqual(-12, ((JsonValue)expressions.Right).GetValue<long>());
         }
 
         [TestMethod]
@@ -430,7 +431,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
         {
             JPath path = new JPath("[?(@.name>=12.1)]");
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[0]).Expression;
-            Assert.AreEqual(12.1d, ((JsonElement)expressions.Right).GetDouble());
+            Assert.AreEqual(12.1d, ((JsonValue)expressions.Right).GetValue<double>());
         }
 
         [TestMethod]
@@ -543,7 +544,7 @@ namespace JsonCraft.Experimental.Tests.JsonPath
         {
             JPath path = new JPath("[?(@.name>=5.56789e+0)]");
             BooleanQueryExpression expressions = (BooleanQueryExpression)((QueryFilter)path.Filters[0]).Expression;
-            Assert.AreEqual(5.56789e+0, ((JsonElement)expressions.Right).GetDouble());
+            Assert.AreEqual(5.56789e+0, ((JsonValue)expressions.Right).GetValue<double>());
         }
 
         [TestMethod]

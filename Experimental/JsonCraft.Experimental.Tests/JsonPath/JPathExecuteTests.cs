@@ -203,8 +203,8 @@ namespace JsonCraft.Experimental.Tests.JsonPath
             var results = models.SelectElements("$.elements[?(true)]").ToList();
 
             Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(results[0], models.RootElement.GetProperty("elements")[0]);
-            Assert.AreEqual(results[1], models.RootElement.GetProperty("elements")[1]);
+            JsonAssert.AreEqual(results[0], models.RootElement.GetProperty("elements")[0]);
+            JsonAssert.AreEqual(results[1], models.RootElement.GetProperty("elements")[1]);
         }
 
         [TestMethod]
