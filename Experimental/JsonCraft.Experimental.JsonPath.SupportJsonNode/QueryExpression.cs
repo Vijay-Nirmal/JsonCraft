@@ -80,10 +80,10 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
     internal class BooleanQueryExpression : QueryExpression
     {
-        public readonly object Left;
+        public readonly object? Left;
         public readonly object? Right;
 
-        public BooleanQueryExpression(QueryOperator @operator, object left, object? right) : base(@operator)
+        public BooleanQueryExpression(QueryOperator @operator, object? left, object? right) : base(@operator)
         {
             Left = left;
             Right = right;

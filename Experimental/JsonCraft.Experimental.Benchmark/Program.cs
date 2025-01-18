@@ -68,7 +68,7 @@ var newtonsoftJson = JToken.Parse(jsonString);
 //Console.WriteLine(Stopwatch.GetElapsedTime(start));
 //Console.WriteLine("===================================================");
 //Console.WriteLine(string.Join("\n", newtonsoftJson.SelectTokens("$.store.bicycle.color").Select(x => x.ToString())));
-//Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$..['bicycle','price']").Select(x => JsonSerializer.Serialize(x))));
+//Console.WriteLine(string.Join("\n", JsonCraft.Experimental.JsonPath.SupportJsonNode.JsonExtensions.SelectElements(jsonDocument.RootElement, "$..[?(@.price < 10)]").Select(x => JsonSerializer.Serialize(x))));
 //Console.WriteLine(string.Join("\n", JsonCraft.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.category == 'fiction')]").ToList().Select(x => JsonSerializer.Serialize(x))));
 //Console.WriteLine("===================================================");
 //Console.WriteLine(string.Join("\n", BlushingPenguin.JsonPath.JsonExtensions.SelectTokens(jsonDocument.RootElement, "$.store.book[?(@.author && @.title)]").Select(x => JsonSerializer.Serialize(x))));

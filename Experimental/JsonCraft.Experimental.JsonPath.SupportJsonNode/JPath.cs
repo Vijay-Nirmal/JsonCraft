@@ -484,7 +484,7 @@ namespace JsonCraft.Experimental.JsonPath.SupportJsonNode
 
             while (_currentIndex < _expression.Length)
             {
-                object left = ParseSide();
+                object? left = ParseSide();
                 object? right = null;
 
                 QueryOperator op;
