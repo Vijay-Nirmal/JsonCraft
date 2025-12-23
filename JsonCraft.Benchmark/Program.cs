@@ -18,34 +18,34 @@ var config = ManualConfig.Create(DefaultConfig.Instance)
 var report = BenchmarkRunner.Run<BenchmarkJsonPath>(config);
 
 
-var jsonString = """
-        {
-            "store": {
-                "book": [
-                    {
-                        "category": "reference",
-                        "author": "Nigel Rees",
-                        "title": "Sayings of the Century",
-                        "price": 8.95
-                    },
-                    {
-                        "category": "fiction",
-                        "author": "Evelyn Waugh",
-                        "title": "Sword of Honour",
-                        "price": 12.99
-                    }
-                ],
-                "bicycle": {
-                    "color": "red",
-                    "price": 19.95
-                }
-            }
-        }
-        """;
+//var jsonString = """
+//        {
+//            "store": {
+//                "book": [
+//                    {
+//                        "category": "reference",
+//                        "author": "Nigel Rees",
+//                        "title": "Sayings of the Century",
+//                        "price": 8.95
+//                    },
+//                    {
+//                        "category": "fiction",
+//                        "author": "Evelyn Waugh",
+//                        "title": "Sword of Honour",
+//                        "price": 12.99
+//                    }
+//                ],
+//                "bicycle": {
+//                    "color": "red",
+//                    "price": 19.95
+//                }
+//            }
+//        }
+//        """;
 
-var jsonDocument = JsonDocument.Parse(jsonString);
+//var jsonDocument = JsonDocument.Parse(jsonString);
 
-var newtonsoftJson = JToken.Parse(jsonString);
+//var newtonsoftJson = JToken.Parse(jsonString);
 
 //var start = Stopwatch.GetTimestamp();
 //for (int i = 0; i < 10_000_000; i++)
