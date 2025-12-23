@@ -1,4 +1,4 @@
-﻿// #define BENCHMARK_ALL
+﻿#define BENCHMARK_ALL
 // #define BENCHMARK_Experimental
 
 using BenchmarkDotNet.Attributes;
@@ -12,7 +12,7 @@ using System.Text.Json.Nodes;
 namespace JsonCraft.Benchmark;
 
 [MemoryDiagnoser]
-//[ShortRunJob]
+[ShortRunJob]
 //[CPUUsageDiagnoser]
 //[DotNetObjectAllocDiagnoser]
 public class BenchmarkJsonPath
